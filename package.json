@@ -3,14 +3,26 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "client": "cd client && npm start",
+    "server": "node ./bin/www",
+    "dev-server": "nodemon ./bin/www",
+    "dev-start": "set NODE_ENV=development&&concurrently --kill-others 'npm run dev-server' 'npm run client'",
+    "start": "set NODE_ENV=production&&concurrently 'npm run server' 'npm run client'",
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "concurrently": "^4.1.0",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
+    "dotenv": "^6.2.0",
     "ejs": "~2.5.7",
     "express": "~4.16.0",
     "http-errors": "~1.6.2",
+    "mongoose": "^5.4.11",
     "morgan": "~1.9.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.10"
   }
 }
