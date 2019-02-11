@@ -6,9 +6,8 @@
     "client": "cd client && npm start",
     "server": "node ./bin/www",
     "dev-server": "nodemon ./bin/www",
-    "dev-start": "set NODE_ENV=development&&concurrently --kill-others 'npm run dev-server' 'npm run client'",
-    "start": "set NODE_ENV=production&&concurrently 'npm run server' 'npm run client'",
-    "start": "node ./bin/www"
+    "dev-start": "set NODE_ENV=development & set DEBUG=blockchain-market:* & concurrently --kill-others \"npm run dev-server\" \"npm run client\"",
+    "start": "set NODE_ENV=production & concurrently \"npm run server\" \"npm run client\""
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
