@@ -18,13 +18,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 // connect to db
-const dbAccount = process.env.DB_ACCOUNT;
-const dbPassword = process.env.DB_PASSWORD;
-const dbHost = process.env.DB_HOST;
-const dbName = process.env.DB_NAME;
-const dbPort = process.env.DB_PORT;
-
-const dbURL = `mongodb://${dbAccount}:${dbPassword}@${dbHost}:${dbPort}/${dbName}`;
+const dbURL = process.env.DB_URL;
 
 require(path.join(__dirname, "rest_api/models/db_connect"))(dbURL);
 

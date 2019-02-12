@@ -3,19 +3,16 @@ var mongoose = require("mongoose");
 function connectToDB(dbURL) {
   mongoose.connect(dbURL);
 
-  const splitter = dbURL.split("/");
-  const DBName = splitter[splitter.length - 1];
-
   mongoose.connection.once("connected", function() {
-    console.debug(`${DBName} DB Connected successfully`);
+    console.debug("DB Connected successfully");
   });
 
   mongoose.connection.on("error", function(err) {
-    console.debug(`${DBName} DB Connection failed`, err);
+    console.debug("DB Connection failed", err);
   });
 
   mongoose.connection.on("disconnected", function() {
-    console.debug(`${DBName} DB disconnected successfully`);
+    console.debug("DB disconnected successfully");
   });
 
   var gracefulShutdown = function(msg, callback) {
