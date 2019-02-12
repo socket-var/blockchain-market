@@ -34,7 +34,8 @@ app.use("/auth", authRouter);
 
 // needed for Single-page application to reroute to index page
 app.get("*", function(req, res, next) {
-  res.sendFile(path.join(__dirname, "client", "build", "index.html"));
+  // res.sendFile(path.join(__dirname, "client", "build", "index.html"));
+  res.redirect("/login");
 });
 
 // catch 404 and forward to error handler

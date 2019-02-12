@@ -3,43 +3,45 @@ const authRouter = express.Router();
 const User = require("../models/auth");
 const bcrypt = require("bcryptjs");
 
-// execute only when doc.length != 0
-function signupReject() {
-  Promise.reject("Account with this email already exists").catch(function(err) {
-    res.status(401).send({ error: err });
-  });
-  return true;
-}
-
-// called when a new user needs to be created
-function signupResolve(email, password) {
-  // generate password hash using bcrypt
-  bcrypt
-    .genSalt(14)
-    .then(bcrypt.hash.bind(null, password))
-    // save user details to the db
-    .then(function(hash) {
-      const newUser = new User({ email, password: hash });
-
-      newUser.save(function(err) {
-        if (err) {
-          return res.status(401).json({ error: "Signup failed" });
-        }
-        res.status(200).json({ message: "Signup success!" });
-      });
-    })
-    .catch(function(err) {
-      console.debug(err);
-      res
-        .status(500)
-        .send({ error: "Internal Server Error. Contact administrator" });
-    });
-}
-
 // called when signup post request is made
 function signupFunction(req, res, next) {
   const email = req.body.email;
   const password = req.body.password;
+
+  // called when a new user needs to be created
+  function signupResolve(email, password) {
+    // generate password hash using bcrypt
+    bcrypt
+      .genSalt(14)
+      .then(bcrypt.hash.bind(null, password))
+      // save user details to the db
+      .then(function(hash) {
+        const newUser = new User({ email, password: hash });
+
+        newUser.save(function(err) {
+          if (err) {
+            return res.status(401).json({ error: "Signup failed" });
+          }
+          res.status(200).json({ message: "Signup success!" });
+        });
+      })
+      .catch(function(err) {
+        console.debug(err);
+        res
+          .status(500)
+          .send({ error: "Internal Server Error. Contact administrator" });
+      });
+  }
+
+  // execute only when doc.length != 0
+  function signupReject() {
+    Promise.reject("Account with this email already exists").catch(function(
+      err
+    ) {
+      res.status(401).send({ error: err });
+    });
+    return true;
+  }
 
   // check if the user exists
   User.find({ email }).then(function(docs) {
