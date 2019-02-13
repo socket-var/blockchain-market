@@ -32,7 +32,7 @@ const styles = theme => ({
 
 class AppNavBar extends React.Component {
   state = {
-    value: null
+    value: 0
   };
 
   handleChange = (event, value) => {
@@ -40,7 +40,7 @@ class AppNavBar extends React.Component {
   };
 
   render() {
-    const { classes, isLoggedIn, signoutHandler } = this.props;
+    const { classes, isLoggedIn, signoutHandler, userId } = this.props;
     const { value } = this.state;
 
     return (
@@ -59,13 +59,27 @@ class AppNavBar extends React.Component {
 
             {isLoggedIn ? (
               <React.Fragment>
-                {/* <Tabs
-                  value={value ? value : false}
+                <Tabs
+                  value={value}
                   onChange={this.handleChange}
                   className={classes.growChild}
                 >
-                  <Tab label="Profile" to="/profile" component={Link} />
-                </Tabs> */}
+                  <Tab
+                    label="Buy"
+                    to={`/user/${userId}/buy`}
+                    component={Link}
+                  />
+                  <Tab
+                    label="Sell"
+                    to={`/user/${userId}/sell`}
+                    component={Link}
+                  />
+                  <Tab
+                    label="Cart"
+                    to={`/user/${userId}/cart`}
+                    component={Link}
+                  />
+                </Tabs>
 
                 <Button
                   color="inherit"

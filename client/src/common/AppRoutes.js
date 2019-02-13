@@ -4,7 +4,6 @@ import { Route, Redirect } from "react-router-dom";
 import HomePage from "../HomePage";
 import SignupPage from "../auth/SignupPage";
 import LoginPage from "../auth/LoginPage";
-import ProductsPage from "../ProductsPage";
 import AdminLandingPage from "../landing/AdminLandingPage";
 import UserLandingPage from "../landing/UserLandingPage";
 
