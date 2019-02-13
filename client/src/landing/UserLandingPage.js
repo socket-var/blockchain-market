@@ -2,6 +2,9 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Route } from "react-router-dom";
 
+// import withAjaxCall HOC to get data
+import withAjaxCall from "../protected/withAjaxCall";
+
 // user routes
 import { AuthConsumer } from "../common/AuthProvider";
 import BuyPage from "../protected/BuyPage";
@@ -18,12 +21,15 @@ const UserLandingPage = props => {
             <Route
               path={[`${match.path}`, `${match.path}/buy`]}
               exact
-              component={BuyPage}
+              component={withAjaxCall(BuyPage, "/api/catalog")}
             />
             <Route
               path={`${match.path}/sell`}
               exact
-              render={props => <SellPage {...props} userId={currentUserId} />}
+              component={withAjaxCall(
+                SellPage,
+                `/api/userPosts/${currentUserId}`
+              )}
             />
             <Route path={`${match.path}/cart`} exact component={CartPage} />
           </React.Fragment>

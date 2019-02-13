@@ -1,33 +1,21 @@
-import React, { Component } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
 
-export default class BuyPage extends Component {
-  static propTypes = {};
-
-  state = { items: [] };
-
-  componentDidMount() {
-    console.debug(this.props.userId);
-    // axios.get("/api/catalog")
-    //   .then(res => {
-    //     console.debug(res.data);
-    //     this.setState({items: res.data.products})
-    //   })
-    //   .catch(err => {
-    //     console.debug(err);
-    //   })
-    this.setState({ items: [{ name: "foo", price: "bar" }] });
+const SellPage = props => {
+  const { products, errorMessage } = props;
+  const cards = [];
+  if (products.length > 0) {
+    products.forEach(item => {
+      cards.push(<li>{item.product_name}</li>);
+    });
   }
 
-  render() {
-    // const { items } = this.state;
-    // const cards = [];
+  return (
+    <div>{errorMessage ? <div>{errorMessage}</div> : <ul>{cards}</ul>}</div>
+  );
+};
 
-    // // foreach (item in items) {
-    // cards.push(<li>{items[0].name}</li>);
-    // // }
+SellPage.propTypes = {};
 
-    return <div>This is sell page</div>;
-  }
-}
+export default SellPage;
