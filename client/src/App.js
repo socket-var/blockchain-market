@@ -1,13 +1,10 @@
 import React, { Component } from "react";
-import { BrowserRouter as Router, Route, Redirect } from "react-router-dom";
+import { BrowserRouter as Router } from "react-router-dom";
 import axios from "axios";
 
 // import components
 import AppNavBar from "./common/AppNavBar";
-import HomePage from "./HomePage";
-import SignupPage from "./auth/SignupPage";
-import LoginPage from "./auth/LoginPage";
-import ProductsPage from "./ProductsPage";
+import AppRoutes from "./common/AppRoutes";
 
 class App extends Component {
   constructor(props) {
@@ -18,7 +15,8 @@ class App extends Component {
       passwordField: "",
       confirmPasswordField: "",
       isLoggedIn: false,
-      errorMessage: ""
+      errorMessage: "",
+      currentUserId: null
     };
   }
 
@@ -41,7 +39,7 @@ class App extends Component {
         })
         .then(res => {
           console.debug(res);
-          this.setState({ isLoggedIn: true });
+          this.setState({ isLoggedIn: true, currentUserId: res.data.userId });
         })
         .catch(err => {
           console.debug(err);
@@ -64,7 +62,7 @@ class App extends Component {
       })
       .then(res => {
         console.debug(res);
-        this.setState({ isLoggedIn: true });
+        this.setState({ isLoggedIn: true, currentUserId: res.data.userId });
       })
       .catch(err => {
         console.debug(err);
@@ -77,7 +75,7 @@ class App extends Component {
   };
 
   render() {
-    const { isLoggedIn } = this.state;
+    const { isLoggedIn, currentUserId } = this.state;
 
     return (
       <Router>
@@ -86,52 +84,12 @@ class App extends Component {
             isLoggedIn={isLoggedIn}
             signoutHandler={this.signoutHandler}
           />
-          <Route path="/" exact component={HomePage} />
-          <Route
-            path="/products"
-            render={props =>
-              isLoggedIn ? (
-                <ProductsPage
-                  {...props}
-                  isLoggedIn={isLoggedIn}
-                  // redirectToHome={redirectToHome}
-                />
-              ) : (
-                <Redirect to="/login" />
-              )
-            }
-          />
-          <Route
-            path="/auth/register"
-            render={props =>
-              isLoggedIn ? (
-                <Redirect to="/products" />
-              ) : (
-                <SignupPage
-                  {...props}
-                  onSubmit={this.signupHandler}
-                  onInputChange={this.onInputChange}
-                  // errorMessage={signupPageErrorMessage}
-                  isLoggedIn={isLoggedIn}
-                />
-              )
-            }
-          />
-          <Route
-            path="/auth/login"
-            render={props =>
-              isLoggedIn ? (
-                <Redirect to="/products" />
-              ) : (
-                <LoginPage
-                  {...props}
-                  onSubmit={this.loginHandler}
-                  onInputChange={this.onInputChange}
-                  // errorMessage={loginPageErrorMessage}
-                  isLoggedIn={isLoggedIn}
-                />
-              )
-            }
+          <AppRoutes
+            isLoggedIn={isLoggedIn}
+            onInputChange={this.onInputChange}
+            signupHandler={this.signupHandler}
+            loginHandler={this.loginHandler}
+            userId={currentUserId}
           />
         </div>
       </Router>

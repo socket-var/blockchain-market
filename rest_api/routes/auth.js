@@ -18,11 +18,13 @@ function signupFunction(req, res, next) {
       .then(function(hash) {
         const newUser = new User({ email, password: hash });
 
-        newUser.save(function(err) {
+        newUser.save(function(err, newUser) {
           if (err) {
             return res.status(401).json({ error: "Signup failed" });
           }
-          res.status(200).json({ message: "Signup success!" });
+          res
+            .status(200)
+            .json({ message: "Signup success!", userId: newUser._id });
         });
       })
       .catch(function(err) {
@@ -60,7 +62,9 @@ function loginFunction(req, res, next) {
       .compare(password, doc.password)
       .then(function(result) {
         if (result) {
-          return res.status(200).json({ message: "Login Success" });
+          return res
+            .status(200)
+            .json({ message: "Login Success", userId: doc._id });
         }
         res.status(401).json({ message: "Email or password is incorrect" });
       })
