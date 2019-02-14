@@ -12,11 +12,15 @@ export default class BuyPage extends Component {
   // advanced: we will use componentWillReceiveProps or CDU to fetch data if count locally and globally doesn't match
 
   render() {
-    const { products, errorMessage } = this.props;
+    const { products, errorMessage, addToCart } = this.props;
 
     return (
       <div>
-        <ProductList products={products} errorMessage={errorMessage} />
+        <ProductList
+          products={products}
+          errorMessage={errorMessage}
+          addToCart={addToCart}
+        />
       </div>
     );
   }

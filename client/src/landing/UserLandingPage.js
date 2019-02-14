@@ -32,24 +32,6 @@ export default class UserLandingPage extends Component {
       });
   };
 
-  // componentDidUpdate(prevProps) {
-  //   const { userId } = this.props;
-  //   const currentPath = this.props.location.pathname;
-
-  //   if (prevProps.location.pathname !== currentPath) {
-  //     const key = currentPath.split("/")[currentPath.length - 1];
-  //     switch (key) {
-  //       case "buy":
-  //         this.getData("/api/catalog");
-  //         break;
-  //       case "sell":
-  //         this.getData(`/api/userPosts/${userId}`);
-  //         break;
-  //       default:
-  //     }
-  //   }
-  // }
-
   addProduct = evt => {
     const { productNameField, retailPriceField, products } = this.state;
     const { userId } = this.props;
@@ -64,6 +46,23 @@ export default class UserLandingPage extends Component {
       .then(res => {
         console.debug(res.data);
         this.setState({ products: [res.data.product, ...products] });
+      })
+      .catch(err => {
+        console.debug(err);
+      });
+  };
+
+  addToCart = evt => {
+    const productId = evt.target.id;
+    axios
+      .post(`/api/${this.props.userId}/cart/add`, {
+        productId
+      })
+      .then(res => {
+        console.debug(res.data, "Added to cart");
+      })
+      .catch(err => {
+        console.debug(err);
       });
   };
 
@@ -89,6 +88,7 @@ export default class UserLandingPage extends Component {
               products={products}
               errorMessage={errorMessage}
               getData={this.getData}
+              addToCart={this.addToCart}
             />
           )}
         />
@@ -107,7 +107,19 @@ export default class UserLandingPage extends Component {
             />
           )}
         />
-        <Route path={`${match.path}/cart`} exact component={CartPage} />
+        <Route
+          path={`${match.path}/cart`}
+          exact
+          render={props => (
+            <CartPage
+              {...props}
+              userId={userId}
+              products={products}
+              errorMessage={errorMessage}
+              getData={this.getData}
+            />
+          )}
+        />
       </Switch>
     );
   }

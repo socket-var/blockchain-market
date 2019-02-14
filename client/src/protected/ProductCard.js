@@ -31,7 +31,31 @@ class ProductCard extends React.Component {
   };
 
   render() {
-    const { classes, productName, retailPrice, imageUrl } = this.props;
+    const {
+      classes,
+      buttonId,
+      productName,
+      retailPrice,
+      imageUrl,
+      isCart,
+      addToCart
+    } = this.props;
+
+    let displayAddToCart;
+    if (!isCart) {
+      displayAddToCart = (
+        <Button
+          fullWidth
+          variant="contained"
+          color="primary"
+          className={classes.submit}
+          id={buttonId}
+          onClick={addToCart}
+        >
+          Add to Cart
+        </Button>
+      );
+    }
 
     return (
       <Card className={classes.card}>
@@ -47,14 +71,15 @@ class ProductCard extends React.Component {
             </b>
           </Typography>
           <Typography component="p">Retail Price: {retailPrice}</Typography>
+          {displayAddToCart}
           <Button
-            type="submit"
             fullWidth
             variant="contained"
             color="primary"
             className={classes.submit}
+            id={buttonId}
           >
-            Add to Cart
+            Buy
           </Button>
         </CardContent>
       </Card>
@@ -63,7 +88,9 @@ class ProductCard extends React.Component {
 }
 
 ProductCard.propTypes = {
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
+  isCart: PropTypes.bool,
+  addToCart: PropTypes.func
 };
 
 export default withStyles(styles)(ProductCard);

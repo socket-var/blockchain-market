@@ -1,7 +1,8 @@
 const express = require("express");
-const authRouter = express.Router();
+const productsRouter = express.Router();
 const bcrypt = require("bcryptjs");
 const Product = require("../models/Product");
+const User = require("../models/auth");
 
 // called when signup post request is made
 // use all porducts from flipkart for now
@@ -53,10 +54,62 @@ function addNewProduct(req, res, next) {
   });
 }
 
-authRouter.route("/catalog").get(getAllProducts);
+function getCart(req, res, next) {
+  const userId = req.params.userId;
 
-authRouter.route("/userPosts/:userId").get(getAllPostsByCurrentUser);
+  User.findOne({ _id: userId })
+    .then(user => {
+      if (!user.cart) {
+        return [];
+      } else {
+        return Product.find({ _id: { $in: user.cart } });
+      }
+    })
+    .then(docs => {
+      res.status(200).json({ products: docs });
+    })
+    .catch(err => {
+      console.debug(err);
+      res.status(500).json({ errorMessage: "Internal Server Error" });
+    });
+}
 
-authRouter.route("/addProduct").post(addNewProduct);
+function addToCart(req, res, next) {
+  const userId = req.params.userId;
+  const productId = req.body.productId;
 
-module.exports = authRouter;
+  let user;
+
+  User.findOne({ _id: userId })
+    .then(retUser => {
+      user = retUser;
+      if (!user.cart) {
+        user.cart = [];
+      }
+      if (user.cart.indexOf(productId) === -1) {
+        user.cart.push(productId);
+        return user.save();
+      }
+      return user;
+    })
+    .then(doc => {
+      console.debug(doc, "success saving to cart");
+      res.status(200).json({ product: doc });
+    })
+    .catch(err => {
+      console.debug(err);
+      res.status(500).json({ errorMessage: "Internal Server Error" });
+    });
+}
+
+productsRouter.route("/catalog").get(getAllProducts);
+
+productsRouter.route("/userPosts/:userId").get(getAllPostsByCurrentUser);
+
+productsRouter.route("/addProduct").post(addNewProduct);
+
+productsRouter.get("/:userId/cart", getCart);
+
+productsRouter.post("/:userId/cart/add", addToCart);
+
+module.exports = productsRouter;
