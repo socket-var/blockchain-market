@@ -4,20 +4,20 @@ function connectToDB(dbURL) {
   mongoose.connect(dbURL);
 
   mongoose.connection.once("connected", function() {
-    console.debug("DB Connected successfully");
+    ("DB Connected successfully");
   });
 
   mongoose.connection.on("error", function(err) {
-    console.debug("DB Connection failed", err);
+    "DB Connection failed", err;
   });
 
   mongoose.connection.on("disconnected", function() {
-    console.debug("DB disconnected successfully");
+    ("DB disconnected successfully");
   });
 
   var gracefulShutdown = function(msg, callback) {
     mongoose.connection.close(function() {
-      console.debug("Mongoose disconnected through " + msg);
+      "Mongoose disconnected through " + msg;
       callback();
     });
   };

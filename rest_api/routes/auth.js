@@ -28,7 +28,6 @@ function signupFunction(req, res, next) {
         });
       })
       .catch(function(err) {
-        console.debug(err);
         res
           .status(500)
           .send({ error: "Internal Server Error. Contact administrator" });
