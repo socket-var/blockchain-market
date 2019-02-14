@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
+import CssBaseline from "@material-ui/core/CssBaseline";
 import Input from "@material-ui/core/Input";
 import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
@@ -43,6 +44,7 @@ function AddProductForm(props) {
   const { classes, onInputChange, onSubmit } = props;
   return (
     <main className={classes.main}>
+      <CssBaseline />
       <Paper className={classes.paper}>
         <form className={classes.form} onSubmit={onSubmit}>
           <FormControl margin="normal" required fullWidth>
@@ -52,7 +54,6 @@ function AddProductForm(props) {
               name="productName"
               autoComplete="product-name"
               autoFocus
-              className={classes.margin}
               onChange={onInputChange}
             />
           </FormControl>
@@ -62,7 +63,6 @@ function AddProductForm(props) {
               name="retail"
               id="retailPriceField"
               autoComplete="retail-price"
-              className={classes.margin}
               onChange={onInputChange}
             />
           </FormControl>
