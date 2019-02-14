@@ -1,21 +1,31 @@
-import React from "react";
+import React, { Component } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
 
-const SellPage = props => {
-  const { products, errorMessage } = props;
-  const cards = [];
-  if (products.length > 0) {
-    products.forEach(item => {
-      cards.push(<li>{item.product_name}</li>);
-    });
+import ProductList from "./ProductList";
+import AddProductForm from "./AddProductForm";
+
+// sell page should have 2 areas
+// form to submit new items
+// area to display all items in descending order
+
+export default class SellPage extends Component {
+  static propTypes = {};
+  state = {};
+
+  componentDidMount() {
+    const { getData, userId } = this.props;
+
+    getData(`/api/userPosts/${userId}`);
   }
 
-  return (
-    <div>{errorMessage ? <div>{errorMessage}</div> : <ul>{cards}</ul>}</div>
-  );
-};
-
-SellPage.propTypes = {};
-
-export default SellPage;
+  render() {
+    const { products, errorMessage, addProduct, onInputChange } = this.props;
+    return (
+      <div>
+        <AddProductForm onInputChange={onInputChange} onSubmit={addProduct} />
+        <ProductList products={products} errorMessage={errorMessage} />
+      </div>
+    );
+  }
+}

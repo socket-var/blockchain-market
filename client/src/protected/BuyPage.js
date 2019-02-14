@@ -1,21 +1,23 @@
-import React from "react";
+import React, { Component } from "react";
 import PropTypes from "prop-types";
-import axios from "axios";
+import ProductList from "./ProductList";
 
-const BuyPage = props => {
-  const { products, errorMessage } = props;
-  const cards = [];
-  if (products.length > 0) {
-    products.forEach(item => {
-      cards.push(<li>{item.product_name}</li>);
-    });
+export default class BuyPage extends Component {
+  static propTypes = {};
+
+  componentDidMount() {
+    this.props.getData("/api/catalog");
   }
 
-  return (
-    <div>{errorMessage ? <div>{errorMessage}</div> : <ul>{cards}</ul>}</div>
-  );
-};
+  // advanced: we will use componentWillReceiveProps or CDU to fetch data if count locally and globally doesn't match
 
-BuyPage.propTypes = {};
+  render() {
+    const { products, errorMessage } = this.props;
 
-export default BuyPage;
+    return (
+      <div>
+        <ProductList products={products} errorMessage={errorMessage} />
+      </div>
+    );
+  }
+}

@@ -1,6 +1,7 @@
 import React from "react";
 import { Route, Redirect } from "react-router-dom";
 
+import { AuthConsumer } from "../common/AuthProvider";
 import HomePage from "../HomePage";
 import SignupPage from "../auth/SignupPage";
 import LoginPage from "../auth/LoginPage";
@@ -54,12 +55,22 @@ const AppRoutes = ({
           isLoggedIn ? <AdminLandingPage {...props} /> : <Redirect to="/" />
         }
       /> */}
-      <Route
-        path={`/user/${userId}`}
-        render={props =>
-          isLoggedIn ? <UserLandingPage {...props} /> : <Redirect to="/" />
-        }
-      />
+      <AuthConsumer>
+        {({ currentUserId }) => {
+          return (
+            <Route
+              path={`/user/${userId}`}
+              render={props =>
+                isLoggedIn ? (
+                  <UserLandingPage userId={currentUserId} {...props} />
+                ) : (
+                  <Redirect to="/" />
+                )
+              }
+            />
+          );
+        }}
+      </AuthConsumer>
     </React.Fragment>
   );
 };

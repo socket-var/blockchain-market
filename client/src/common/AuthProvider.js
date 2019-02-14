@@ -31,11 +31,9 @@ export default class AuthProvider extends Component {
           password: passwordField
         })
         .then(res => {
-          console.debug(res);
           this.setState({ isLoggedIn: true, currentUserId: res.data.userId });
         })
         .catch(err => {
-          console.debug(err);
           this.setState({ errorMessage: err });
         });
     } else {
@@ -54,11 +52,9 @@ export default class AuthProvider extends Component {
         password: passwordField
       })
       .then(res => {
-        console.debug(res);
         this.setState({ isLoggedIn: true, currentUserId: res.data.userId });
       })
       .catch(err => {
-        console.debug(err);
         this.setState({ errorMessage: err });
       });
   };
