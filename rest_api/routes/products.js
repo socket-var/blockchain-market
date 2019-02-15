@@ -102,6 +102,35 @@ function addToCart(req, res, next) {
     });
 }
 
+// this is gonna be huge
+// this later would handle transaction between buyer and seller, for now it just decrements counter
+function buyProduct(req, res, next) {
+  const productId = req.body.productId;
+  // check if in stock
+  Product.findOne({ _id: productId })
+    .where("numUnits")
+    .ne(0)
+    .then(product => {
+      console.debug(product.numUnits);
+      if (!product) {
+        throw "Not in stock";
+      }
+      // this should be async when things get real
+      console.debug("decrementing numUnits");
+      product.numUnits -= 1;
+      console.debug(product.numUnits);
+      return Promise.resolve(product);
+    })
+    .then(product => product.save())
+    .then(product => {
+      res.status(200).json({ product });
+    })
+    .catch(err => {
+      console.debug(err);
+      res.status(500).json({ errorMessage: "Internal Server Error" });
+    });
+}
+
 productsRouter.route("/catalog").get(getAllProducts);
 
 productsRouter.route("/userPosts/:userId").get(getAllPostsByCurrentUser);
@@ -111,5 +140,7 @@ productsRouter.route("/addProduct").post(addNewProduct);
 productsRouter.get("/:userId/cart", getCart);
 
 productsRouter.post("/:userId/cart/add", addToCart);
+
+productsRouter.post("/:userId/buy", buyProduct);
 
 module.exports = productsRouter;

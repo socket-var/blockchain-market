@@ -14,10 +14,17 @@ const styles = {
 };
 
 const ProductList = props => {
-  const { products, errorMessage, classes, isCart, addToCart } = props;
+  const {
+    products,
+    errorMessage,
+    classes,
+    isCart,
+    addToCart,
+    buyProduct
+  } = props;
   const cards = [];
   if (products.length > 0) {
-    products.forEach(item => {
+    products.forEach((item, idx) => {
       console.debug(item._id);
       const imageUrl = item.image[0];
       const productId = item._id;
@@ -25,13 +32,15 @@ const ProductList = props => {
       const retailPrice = item.retail_price;
       cards.push(
         <ProductCard
-          key={productId}
+          key={idx}
+          productIdx={idx}
           buttonId={productId}
           imageUrl={imageUrl}
           productName={productName}
           retailPrice={retailPrice}
           isCart={isCart}
           addToCart={isCart ? null : addToCart}
+          buyProduct={buyProduct}
         />
       );
     });
@@ -50,7 +59,8 @@ const ProductList = props => {
 
 ProductList.propTypes = {
   isCart: PropTypes.bool,
-  addToCart: PropTypes.func
+  addToCart: PropTypes.func,
+  buyProduct: PropTypes.func
 };
 
 export default withStyles(styles)(ProductList);

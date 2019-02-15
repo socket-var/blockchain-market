@@ -38,7 +38,9 @@ class ProductCard extends React.Component {
       retailPrice,
       imageUrl,
       isCart,
-      addToCart
+      addToCart,
+      buyProduct,
+      productIdx
     } = this.props;
 
     let displayAddToCart;
@@ -78,6 +80,8 @@ class ProductCard extends React.Component {
             color="primary"
             className={classes.submit}
             id={buttonId}
+            onClick={buyProduct}
+            data-key={productIdx}
           >
             Buy
           </Button>

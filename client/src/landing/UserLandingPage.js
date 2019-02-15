@@ -66,6 +66,32 @@ export default class UserLandingPage extends Component {
       });
   };
 
+  buyProduct = evt => {
+    const productId = evt.target.id;
+    const idx = evt.target.dataset.key;
+
+    axios
+      .post(`/api/${this.props.userId}/buy`, {
+        productId
+      })
+      .then(res => {
+        console.debug(res.data);
+        // decrement numUnits by 1 make sure to do this
+
+        console.debug("Buy success");
+        this.setState(function(prevState) {
+          const products = prevState.products;
+          products[idx] = res.data.product;
+          return {
+            products
+          };
+        });
+      })
+      .catch(err => {
+        console.debug(err);
+      });
+  };
+
   onInputChange = evt => {
     this.setState({
       [evt.target.id]: evt.target.value
@@ -89,6 +115,7 @@ export default class UserLandingPage extends Component {
               errorMessage={errorMessage}
               getData={this.getData}
               addToCart={this.addToCart}
+              buyProduct={this.buyProduct}
             />
           )}
         />
