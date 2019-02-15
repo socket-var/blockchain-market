@@ -18,14 +18,13 @@ const ProductList = props => {
     products,
     errorMessage,
     classes,
-    isCart,
     addToCart,
-    buyProduct
+    buyProduct,
+    removeFromCart
   } = props;
   const cards = [];
   if (products.length > 0) {
     products.forEach((item, idx) => {
-      console.debug(item._id);
       const imageUrl = item.image[0];
       const productId = item._id;
       const productName = item.product_name;
@@ -38,9 +37,9 @@ const ProductList = props => {
           imageUrl={imageUrl}
           productName={productName}
           retailPrice={retailPrice}
-          isCart={isCart}
-          addToCart={isCart ? null : addToCart}
-          buyProduct={buyProduct}
+          addToCart={addToCart || null}
+          buyProduct={buyProduct || null}
+          removeFromCart={removeFromCart || null}
         />
       );
     });
@@ -58,7 +57,6 @@ const ProductList = props => {
 };
 
 ProductList.propTypes = {
-  isCart: PropTypes.bool,
   addToCart: PropTypes.func,
   buyProduct: PropTypes.func
 };

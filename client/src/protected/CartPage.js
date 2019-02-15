@@ -18,13 +18,14 @@ export default class CartPage extends Component {
   }
 
   render() {
-    const { products, errorMessage } = this.props;
+    const { products, errorMessage, buyProduct, removeFromCart } = this.props;
     return (
       <div>
         <ProductList
           products={products}
           errorMessage={errorMessage}
-          isCart={true}
+          buyProduct={buyProduct}
+          removeFromCart={removeFromCart}
         />
       </div>
     );

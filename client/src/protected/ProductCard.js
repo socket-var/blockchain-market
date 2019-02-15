@@ -37,15 +37,17 @@ class ProductCard extends React.Component {
       productName,
       retailPrice,
       imageUrl,
-      isCart,
       addToCart,
       buyProduct,
-      productIdx
+      productIdx,
+      removeFromCart
     } = this.props;
 
-    let displayAddToCart;
-    if (!isCart) {
-      displayAddToCart = (
+    let AddToCartButton;
+    let BuyButton;
+    let RemoveButton;
+    if (addToCart) {
+      AddToCartButton = (
         <Button
           fullWidth
           variant="contained"
@@ -55,6 +57,38 @@ class ProductCard extends React.Component {
           onClick={addToCart}
         >
           Add to Cart
+        </Button>
+      );
+    }
+
+    if (buyProduct) {
+      BuyButton = (
+        <Button
+          fullWidth
+          variant="contained"
+          color="primary"
+          className={classes.submit}
+          id={buttonId}
+          onClick={buyProduct}
+          data-key={productIdx}
+        >
+          Buy
+        </Button>
+      );
+    }
+
+    if (removeFromCart) {
+      RemoveButton = (
+        <Button
+          fullWidth
+          variant="contained"
+          color="primary"
+          className={classes.submit}
+          id={buttonId}
+          onClick={removeFromCart}
+          data-key={productIdx}
+        >
+          Remove from cart
         </Button>
       );
     }
@@ -73,18 +107,9 @@ class ProductCard extends React.Component {
             </b>
           </Typography>
           <Typography component="p">Retail Price: {retailPrice}</Typography>
-          {displayAddToCart}
-          <Button
-            fullWidth
-            variant="contained"
-            color="primary"
-            className={classes.submit}
-            id={buttonId}
-            onClick={buyProduct}
-            data-key={productIdx}
-          >
-            Buy
-          </Button>
+          {AddToCartButton}
+          {BuyButton}
+          {RemoveButton}
         </CardContent>
       </Card>
     );
@@ -93,8 +118,8 @@ class ProductCard extends React.Component {
 
 ProductCard.propTypes = {
   classes: PropTypes.object.isRequired,
-  isCart: PropTypes.bool,
-  addToCart: PropTypes.func
+  addToCart: PropTypes.func,
+  buyProduct: PropTypes.func
 };
 
 export default withStyles(styles)(ProductCard);

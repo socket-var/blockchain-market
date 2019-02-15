@@ -94,6 +94,32 @@ export default class UserLandingPage extends Component {
       });
   };
 
+  removeFromCart = evt => {
+    const productId = evt.target.id;
+    const idx = evt.target.dataset.key;
+
+    axios
+      .post(`/api/${this.props.userId}/cart/remove`, {
+        productId
+      })
+      .then(res => {
+        this.props.openSnackbar("Removed item from cart");
+
+        this.setState(function(prevState) {
+          const products = prevState.products;
+          products.splice(idx, 1);
+          return {
+            products
+          };
+        });
+
+        console.debug(res.data, "Removed from cart");
+      })
+      .catch(err => {
+        console.debug(err);
+      });
+  };
+
   onInputChange = evt => {
     this.setState({
       [evt.target.id]: evt.target.value
@@ -146,6 +172,8 @@ export default class UserLandingPage extends Component {
               products={products}
               errorMessage={errorMessage}
               getData={this.getData}
+              buyProduct={this.buyProduct}
+              removeFromCart={this.removeFromCart}
             />
           )}
         />
