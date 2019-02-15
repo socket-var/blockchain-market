@@ -74,32 +74,43 @@ function getCart(req, res, next) {
     });
 }
 
-function addToCart(req, res, next) {
-  const userId = req.params.userId;
-  const productId = req.body.productId;
+function changeCart(operation) {
+  return function(req, res, next) {
+    const userId = req.params.userId;
+    const productId = req.body.productId;
+    let user;
 
-  let user;
+    User.findOne({ _id: userId })
+      .then(retUser => {
+        user = retUser;
+        if (!user.cart) {
+          user.cart = [];
+        }
+        if (operation === "add") {
+          if (user.cart.indexOf(productId) === -1) {
+            user.cart.push(productId);
+            return user.save();
+          }
+          return user;
+        } else if (operation === "remove") {
+          const loc = user.cart.indexOf(productId);
 
-  User.findOne({ _id: userId })
-    .then(retUser => {
-      user = retUser;
-      if (!user.cart) {
-        user.cart = [];
-      }
-      if (user.cart.indexOf(productId) === -1) {
-        user.cart.push(productId);
-        return user.save();
-      }
-      return user;
-    })
-    .then(doc => {
-      console.debug(doc, "success saving to cart");
-      res.status(200).json({ product: doc });
-    })
-    .catch(err => {
-      console.debug(err);
-      res.status(500).json({ errorMessage: "Internal Server Error" });
-    });
+          if (loc !== -1) {
+            user.cart.splice(loc, 1);
+            return user.save();
+          }
+          return user;
+        }
+      })
+      .then(doc => {
+        console.debug(doc, "success saving to cart");
+        res.status(200).json({ product: doc });
+      })
+      .catch(err => {
+        console.debug(err);
+        res.status(500).json({ errorMessage: "Internal Server Error" });
+      });
+  };
 }
 
 // this is gonna be huge
@@ -139,7 +150,9 @@ productsRouter.route("/addProduct").post(addNewProduct);
 
 productsRouter.get("/:userId/cart", getCart);
 
-productsRouter.post("/:userId/cart/add", addToCart);
+productsRouter.post("/:userId/cart/add", changeCart("add"));
+
+productsRouter.post("/:userId/cart/remove", changeCart("remove"));
 
 productsRouter.post("/:userId/buy", buyProduct);
 
