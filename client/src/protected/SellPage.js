@@ -20,11 +20,20 @@ export default class SellPage extends Component {
   }
 
   render() {
-    const { products, errorMessage, addProduct, onInputChange } = this.props;
+    const {
+      products,
+      errorMessage,
+      addProductForSale,
+      removeProductFromSale,
+      onInputChange
+    } = this.props;
     return (
       <div>
-        <AddProductForm onInputChange={onInputChange} onSubmit={addProduct} />
-        <ProductList products={products} errorMessage={errorMessage} />
+        <AddProductForm
+          onInputChange={onInputChange}
+          onSubmit={addProductForSale}
+        />
+        <ProductList products={products} errorMessage={errorMessage} removeProductFromSale={removeProductFromSale}/>
       </div>
     );
   }

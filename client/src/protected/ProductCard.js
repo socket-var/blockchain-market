@@ -40,12 +40,12 @@ class ProductCard extends React.Component {
       addToCart,
       buyProduct,
       productIdx,
-      removeFromCart
+      removeFromCart,
+      removeProductFromSale
     } = this.props;
 
-    let AddToCartButton;
-    let BuyButton;
-    let RemoveButton;
+    let AddToCartButton, BuyButton, RemoveButton, RemoveFromSaleButton;
+
     if (addToCart) {
       AddToCartButton = (
         <Button
@@ -93,6 +93,22 @@ class ProductCard extends React.Component {
       );
     }
 
+    if (removeProductFromSale) {
+      RemoveButton = (
+        <Button
+          fullWidth
+          variant="contained"
+          color="primary"
+          className={classes.submit}
+          id={buttonId}
+          onClick={removeProductFromSale}
+          data-key={productIdx}
+        >
+          Delete Product
+        </Button>
+      );
+    }
+
     return (
       <Card className={classes.card}>
         <CardMedia
@@ -110,6 +126,7 @@ class ProductCard extends React.Component {
           {AddToCartButton}
           {BuyButton}
           {RemoveButton}
+          {RemoveFromSaleButton}
         </CardContent>
       </Card>
     );

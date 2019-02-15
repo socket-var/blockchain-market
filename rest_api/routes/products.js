@@ -23,7 +23,7 @@ function getAllProducts(req, res, next) {
 // called when login post request is made
 function getAllPostsByCurrentUser(req, res, next) {
   const userId = req.params.userId;
-
+  // use user object to gte this faster
   Product.find({ createdBy: userId })
     .sort({ _id: -1 })
     .then(docs => {
@@ -35,23 +35,62 @@ function getAllPostsByCurrentUser(req, res, next) {
     });
 }
 
-function addNewProduct(req, res, next) {
-  const { productName, retailPrice, createdBy } = req.body;
+function removeProductFromSale(req, res, next) {
+  const userId = req.params.userId;
+
+  const { productId } = req.body;
+
+  User.findOne({ _id: userId })
+    .then(user => {
+      const loc = user.itemsForSale.indexOf(productId);
+
+      if (loc !== -1) {
+        user.itemsForSale.splice(loc, 1);
+        return user.save();
+      }
+      return user;
+    })
+    .then(user => Product.findByIdAndDelete(productId))
+    .then(product => res.status(200).json({ product }))
+    .catch(err => {
+      console.debug(err);
+      res
+        .status(500)
+        .json({ errorMessage: "Failed to remove the product! Try again" });
+    });
+}
+
+function addProductForSale(req, res, next) {
+  const userId = req.params.userId;
+  const { productName, retailPrice, numUnits } = req.body;
+
+  let savedProduct;
 
   const newProduct = new Product({
     product_name: productName,
     retail_price: retailPrice,
-    createdBy
+    createdBy: userId,
+    numUnits
   });
 
-  newProduct.save((err, product) => {
-    if (err) {
+  newProduct
+    .save()
+    .then(product => {
+      savedProduct = product;
+      return User.findOne({ _id: userId });
+    })
+    .then(user => {
+      user.itemsForSale = user.itemsForSale || [];
+      user.itemsForSale.push(savedProduct._id);
+      return user.save();
+    })
+    .then(user => res.status(200).json({ product: savedProduct }))
+    .catch(err => {
+      console.debug(err);
       res
         .status(500)
         .json({ errorMessage: "Failed to save the product! Try again" });
-    }
-    res.status(200).json({ product });
-  });
+    });
 }
 
 function getCart(req, res, next) {
@@ -146,7 +185,11 @@ productsRouter.route("/catalog").get(getAllProducts);
 
 productsRouter.route("/userPosts/:userId").get(getAllPostsByCurrentUser);
 
-productsRouter.route("/addProduct").post(addNewProduct);
+productsRouter.route("/:userId/addProductForSale").post(addProductForSale);
+
+productsRouter
+  .route("/:userId/removeProductFromSale")
+  .post(removeProductFromSale);
 
 productsRouter.get("/:userId/cart", getCart);
 

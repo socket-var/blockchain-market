@@ -66,6 +66,15 @@ function AddProductForm(props) {
               onChange={onInputChange}
             />
           </FormControl>
+          <FormControl margin="normal" required fullWidth>
+            <InputLabel htmlFor="retailPriceField">Number of units</InputLabel>
+            <Input
+              name="num-units"
+              id="numUnitsField"
+              autoComplete="number-of-units"
+              onChange={onInputChange}
+            />
+          </FormControl>
           <Button
             type="submit"
             fullWidth

@@ -20,12 +20,14 @@ const ProductList = props => {
     classes,
     addToCart,
     buyProduct,
-    removeFromCart
+    removeFromCart,
+    removeProductFromSale
   } = props;
   const cards = [];
   if (products.length > 0) {
     products.forEach((item, idx) => {
-      const imageUrl = item.image[0];
+      const imageUrl =
+        item.image.length > 0 ? item.image[0] : "/placeholder.png";
       const productId = item._id;
       const productName = item.product_name;
       const retailPrice = item.retail_price;
@@ -40,6 +42,7 @@ const ProductList = props => {
           addToCart={addToCart || null}
           buyProduct={buyProduct || null}
           removeFromCart={removeFromCart || null}
+          removeProductFromSale={removeProductFromSale}
         />
       );
     });

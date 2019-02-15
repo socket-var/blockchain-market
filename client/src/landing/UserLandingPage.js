@@ -16,7 +16,8 @@ export default class UserLandingPage extends Component {
     products: [],
     errorMessage: null,
     productNameField: "",
-    retailPriceField: ""
+    retailPriceField: "",
+    numUnitsField: ""
   };
 
   getData = apiUrl => {
@@ -32,21 +33,56 @@ export default class UserLandingPage extends Component {
       });
   };
 
-  addProduct = evt => {
-    const { productNameField, retailPriceField, products } = this.state;
+  addProductForSale = evt => {
+    const {
+      productNameField,
+      retailPriceField,
+      numUnitsField,
+      products
+    } = this.state;
     const { userId } = this.props;
 
     evt.preventDefault();
+    // refactor this api call to
     axios
-      .post("/api/addProduct", {
+      .post(`/api/${userId}/addProductForSale`, {
         productName: productNameField,
         retailPrice: retailPriceField,
-        createdBy: userId
+        createdBy: userId,
+        numUnits: numUnitsField
       })
       .then(res => {
         console.debug(res.data);
         this.props.openSnackbar("New Product Added");
         this.setState({ products: [res.data.product, ...products] });
+      })
+      .catch(err => {
+        console.debug(err);
+      });
+  };
+
+  removeProductFromSale = evt => {
+    const productId = evt.target.id;
+    const idx = evt.target.dataset.key;
+
+    const { userId } = this.props;
+
+    evt.preventDefault();
+    // refactor this api call to
+    axios
+      .post(`/api/${userId}/removeProductFromSale`, {
+        productId
+      })
+      .then(res => {
+        console.debug(res.data);
+        this.props.openSnackbar("Product removed from sale");
+        this.setState(function(prevState) {
+          const products = prevState.products;
+          products.splice(idx, 1);
+          return {
+            products
+          };
+        });
       })
       .catch(err => {
         console.debug(err);
@@ -158,7 +194,8 @@ export default class UserLandingPage extends Component {
               errorMessage={errorMessage}
               getData={this.getData}
               onInputChange={this.onInputChange}
-              addProduct={this.addProduct}
+              addProductForSale={this.addProductForSale}
+              removeProductFromSale={this.removeProductFromSale}
             />
           )}
         />
