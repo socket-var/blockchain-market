@@ -31,6 +31,7 @@ export default class AuthProvider extends Component {
           password: passwordField
         })
         .then(res => {
+          this.props.openSnackbar("Signed up successfully");
           this.setState({ isLoggedIn: true, currentUserId: res.data.userId });
         })
         .catch(err => {
@@ -52,6 +53,7 @@ export default class AuthProvider extends Component {
         password: passwordField
       })
       .then(res => {
+        this.props.openSnackbar("Logged in successfully");
         this.setState({ isLoggedIn: true, currentUserId: res.data.userId });
       })
       .catch(err => {
@@ -60,6 +62,7 @@ export default class AuthProvider extends Component {
   };
 
   signoutHandler = () => {
+    this.props.openSnackbar("Signed out successfully");
     this.setState({ isLoggedIn: false });
   };
 

@@ -13,7 +13,8 @@ const AppRoutes = ({
   signupHandler,
   loginHandler,
   onInputChange,
-  userId
+  userId,
+  openSnackbar
 }) => {
   return (
     <React.Fragment>
@@ -62,7 +63,11 @@ const AppRoutes = ({
               path={`/user/${userId}`}
               render={props =>
                 isLoggedIn ? (
-                  <UserLandingPage userId={currentUserId} {...props} />
+                  <UserLandingPage
+                    userId={currentUserId}
+                    openSnackbar={openSnackbar}
+                    {...props}
+                  />
                 ) : (
                   <Redirect to="/" />
                 )

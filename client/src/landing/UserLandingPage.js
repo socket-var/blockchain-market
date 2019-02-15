@@ -45,6 +45,7 @@ export default class UserLandingPage extends Component {
       })
       .then(res => {
         console.debug(res.data);
+        this.props.openSnackbar("New Product Added");
         this.setState({ products: [res.data.product, ...products] });
       })
       .catch(err => {
@@ -59,6 +60,7 @@ export default class UserLandingPage extends Component {
         productId
       })
       .then(res => {
+        this.props.openSnackbar("Added item to cart");
         console.debug(res.data, "Added to cart");
       })
       .catch(err => {
@@ -77,7 +79,7 @@ export default class UserLandingPage extends Component {
       .then(res => {
         console.debug(res.data);
         // decrement numUnits by 1 make sure to do this
-
+        this.props.openSnackbar("Congratulations!! You bought the product!!");
         console.debug("Buy success");
         this.setState(function(prevState) {
           const products = prevState.products;

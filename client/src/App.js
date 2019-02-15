@@ -5,39 +5,52 @@ import { BrowserRouter as Router } from "react-router-dom";
 import AppNavBar from "./common/AppNavBar";
 import AppRoutes from "./common/AppRoutes";
 import { AuthProvider, AuthConsumer } from "./common/AuthProvider";
+import {
+  SharedSnackbarProvider,
+  SharedSnackbarConsumer
+} from "./common/SharedSnackBarProvider";
 
 const App = () => {
   return (
     <Router>
-      <AuthProvider>
-        <AuthConsumer>
-          {({
-            isLoggedIn,
-            currentUserId,
-            signupHandler,
-            loginHandler,
-            signoutHandler,
-            onInputChange
-          }) => {
+      <SharedSnackbarProvider>
+        <SharedSnackbarConsumer>
+          {({ openSnackbar }) => {
             return (
-              <div className="App">
-                <AppNavBar
-                  isLoggedIn={isLoggedIn}
-                  signoutHandler={signoutHandler}
-                  userId={currentUserId}
-                />
-                <AppRoutes
-                  isLoggedIn={isLoggedIn}
-                  onInputChange={onInputChange}
-                  signupHandler={signupHandler}
-                  loginHandler={loginHandler}
-                  userId={currentUserId}
-                />
-              </div>
+              <AuthProvider openSnackbar={openSnackbar}>
+                <AuthConsumer>
+                  {({
+                    isLoggedIn,
+                    currentUserId,
+                    signupHandler,
+                    loginHandler,
+                    signoutHandler,
+                    onInputChange
+                  }) => {
+                    return (
+                      <div className="App">
+                        <AppNavBar
+                          isLoggedIn={isLoggedIn}
+                          signoutHandler={signoutHandler}
+                          userId={currentUserId}
+                        />
+                        <AppRoutes
+                          isLoggedIn={isLoggedIn}
+                          onInputChange={onInputChange}
+                          signupHandler={signupHandler}
+                          loginHandler={loginHandler}
+                          userId={currentUserId}
+                          openSnackbar={openSnackbar}
+                        />
+                      </div>
+                    );
+                  }}
+                </AuthConsumer>
+              </AuthProvider>
             );
           }}
-        </AuthConsumer>
-      </AuthProvider>
+        </SharedSnackbarConsumer>
+      </SharedSnackbarProvider>
     </Router>
   );
 };
