@@ -40,13 +40,23 @@ class AppNavBar extends React.Component {
   };
 
   render() {
-    const { classes, isLoggedIn, signoutHandler, userId } = this.props;
+    const {
+      classes,
+      isLoggedIn,
+      isAdminLoggedIn,
+      signoutHandler,
+      userId
+    } = this.props;
     const { value } = this.state;
 
     return (
       <div className={classes.root}>
         <AppBar position="static">
-          <Toolbar className={isLoggedIn ? "" : classes.floatToolBarItems}>
+          <Toolbar
+            className={
+              isLoggedIn || isAdminLoggedIn ? "" : classes.floatToolBarItems
+            }
+          >
             <Typography
               variant="h3"
               color="inherit"
@@ -57,7 +67,7 @@ class AppNavBar extends React.Component {
               Blockchain Market
             </Typography>
 
-            {isLoggedIn ? (
+            {isLoggedIn && (
               <React.Fragment>
                 <Tabs
                   value={value}
@@ -80,16 +90,10 @@ class AppNavBar extends React.Component {
                     component={Link}
                   />
                 </Tabs>
-
-                <Button
-                  color="inherit"
-                  className={classes.defaultChild}
-                  onClick={signoutHandler}
-                >
-                  Sign out
-                </Button>
               </React.Fragment>
-            ) : (
+            )}
+
+            {!(isAdminLoggedIn || isLoggedIn) && (
               <div>
                 <Button
                   color="inherit"
@@ -108,6 +112,16 @@ class AppNavBar extends React.Component {
                   Login
                 </Button>
               </div>
+            )}
+
+            {(isAdminLoggedIn || isLoggedIn) && (
+              <Button
+                color="inherit"
+                className={classes.defaultChild}
+                onClick={signoutHandler}
+              >
+                Sign out
+              </Button>
             )}
           </Toolbar>
         </AppBar>

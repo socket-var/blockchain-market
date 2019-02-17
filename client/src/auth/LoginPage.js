@@ -12,7 +12,6 @@ import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
 import withStyles from "@material-ui/core/styles/withStyles";
-import { Redirect } from "react-router-dom";
 
 const styles = theme => ({
   main: {
@@ -49,15 +48,12 @@ const styles = theme => ({
 
 function LoginPage({
   classes,
-  redirectToChat,
   errorMessage,
   emailField,
   passwordField,
   onInputChange,
   onSubmit
 }) {
-  if (redirectToChat) return <Redirect to={"/chat"} />;
-
   return (
     <main className={classes.main}>
       <CssBaseline />

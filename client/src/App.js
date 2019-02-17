@@ -25,17 +25,20 @@ const App = () => {
                     signupHandler,
                     loginHandler,
                     signoutHandler,
-                    onInputChange
+                    onInputChange,
+                    isAdminLoggedIn
                   }) => {
                     return (
                       <div className="App">
                         <AppNavBar
                           isLoggedIn={isLoggedIn}
+                          isAdminLoggedIn={isAdminLoggedIn}
                           signoutHandler={signoutHandler}
                           userId={currentUserId}
                         />
                         <AppRoutes
                           isLoggedIn={isLoggedIn}
+                          isAdminLoggedIn={isAdminLoggedIn}
                           onInputChange={onInputChange}
                           signupHandler={signupHandler}
                           loginHandler={loginHandler}

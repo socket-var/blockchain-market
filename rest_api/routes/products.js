@@ -181,6 +181,45 @@ function buyProduct(req, res, next) {
     });
 }
 
+function listAllUsers(req, res, next) {
+  const userId = req.params.userId;
+
+  User.findOne({ _id: userId })
+    .then(user => {
+      if (user.isAdmin) {
+        return User.find({});
+      } else {
+        throw "User is not an admin";
+      }
+    })
+    .then(users => res.status(200).json({ users }))
+    .catch(err => {
+      console.debug(err);
+      res.status(403).json({ errorMessage: "Unauthorized or Server Error" });
+    });
+}
+
+function deleteUser(req, res, next) {
+  const { userId, userIdToRemove } = req.params;
+
+  User.findOne({ _id: userId })
+    .then(user => {
+      if (user.isAdmin) {
+        return User.findByIdAndDelete(userIdToRemove);
+      } else {
+        throw "User is not an admin";
+      }
+    })
+    .then(doc => {
+      console.debug("User deleted successfully");
+      res.status(200).json({ user: doc });
+    })
+    .catch(err => {
+      console.debug(err);
+      res.status(500).json({ errorMessage: "Internal Server Error" });
+    });
+}
+
 productsRouter.route("/catalog").get(getAllProducts);
 
 productsRouter.route("/userPosts/:userId").get(getAllPostsByCurrentUser);
@@ -198,5 +237,9 @@ productsRouter.post("/:userId/cart/add", changeCart("add"));
 productsRouter.post("/:userId/cart/remove", changeCart("remove"));
 
 productsRouter.post("/:userId/buy", buyProduct);
+
+productsRouter.get("/:userId/admin/list_users", listAllUsers);
+
+productsRouter.delete("/:userId/admin/remove_user/:userIdToRemove", deleteUser);
 
 module.exports = productsRouter;

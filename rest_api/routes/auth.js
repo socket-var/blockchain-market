@@ -16,15 +16,13 @@ function signupFunction(req, res, next) {
       .then(bcrypt.hash.bind(null, password))
       // save user details to the db
       .then(function(hash) {
-        const newUser = new User({ email, password: hash });
+        const newUser = new User({ email, password: hash, isAdmin: false });
 
-        newUser.save(function(err, newUser) {
+        newUser.save(function(err, savedUser) {
           if (err) {
             return res.status(401).json({ error: "Signup failed" });
           }
-          res
-            .status(200)
-            .json({ message: "Signup success!", userId: newUser._id });
+          res.status(200).json({ message: "Signup success!", user: savedUser });
         });
       })
       .catch(function(err) {
@@ -61,9 +59,7 @@ function loginFunction(req, res, next) {
       .compare(password, doc.password)
       .then(function(result) {
         if (result) {
-          return res
-            .status(200)
-            .json({ message: "Login Success", userId: doc._id });
+          return res.status(200).json({ message: "Login Success", user: doc });
         }
         res.status(401).json({ message: "Email or password is incorrect" });
       })

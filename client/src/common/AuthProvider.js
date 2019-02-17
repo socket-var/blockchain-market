@@ -12,6 +12,7 @@ export default class AuthProvider extends Component {
 
   state = {
     isLoggedIn: false,
+    isAdminLoggedIn: false,
     currentUserId: null,
     emailField: "",
     passwordField: "",
@@ -31,8 +32,11 @@ export default class AuthProvider extends Component {
           password: passwordField
         })
         .then(res => {
+          const user = res.data.user;
+
           this.props.openSnackbar("Signed up successfully");
-          this.setState({ isLoggedIn: true, currentUserId: res.data.userId });
+
+          this.setState({ isLoggedIn: true, currentUserId: user._id });
         })
         .catch(err => {
           this.setState({ errorMessage: err });
@@ -54,7 +58,17 @@ export default class AuthProvider extends Component {
       })
       .then(res => {
         this.props.openSnackbar("Logged in successfully");
-        this.setState({ isLoggedIn: true, currentUserId: res.data.userId });
+
+        const user = res.data.user;
+        console.debug(user);
+        if (user.isAdmin) {
+          this.setState({
+            isAdminLoggedIn: true,
+            currentUserId: user._id
+          });
+        } else {
+          this.setState({ isLoggedIn: true, currentUserId: user._id });
+        }
       })
       .catch(err => {
         this.setState({ errorMessage: err });
@@ -62,8 +76,13 @@ export default class AuthProvider extends Component {
   };
 
   signoutHandler = () => {
+    const { isLoggedIn, isAdminLoggedIn } = this.state;
     this.props.openSnackbar("Signed out successfully");
-    this.setState({ isLoggedIn: false });
+    if (isAdminLoggedIn) {
+      this.setState({ isAdminLoggedIn: false });
+    } else if (isLoggedIn) {
+      this.setState({ isLoggedIn: false });
+    }
   };
 
   onInputChange = evt => {
@@ -73,11 +92,12 @@ export default class AuthProvider extends Component {
   };
 
   render() {
-    const { isLoggedIn, currentUserId } = this.state;
+    const { isLoggedIn, currentUserId, isAdminLoggedIn } = this.state;
     return (
       <AuthContext.Provider
         value={{
           isLoggedIn,
+          isAdminLoggedIn,
           currentUserId,
           signupHandler: this.signupHandler,
           loginHandler: this.loginHandler,
