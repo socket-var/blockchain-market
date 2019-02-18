@@ -5,12 +5,15 @@ import axios from "axios";
 
 // user routes
 
-import SellPage from "../protected/SellPage";
-import CartPage from "../protected/CartPage";
-import BuyPage from "../protected/BuyPage";
+import SellPage from "./SellPage";
+import CartPage from "./CartPage";
+import BuyPage from "./BuyPage";
 
 export default class UserLandingPage extends Component {
-  static propTypes = {};
+  static propTypes = {
+    userId: PropTypes.string.isRequired,
+    openSnackbar: PropTypes.func.isRequired
+  };
 
   state = {
     products: [],

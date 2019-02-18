@@ -60,6 +60,7 @@ function AddProductForm(props) {
           <FormControl margin="normal" required fullWidth>
             <InputLabel htmlFor="retailPriceField">Retail Price</InputLabel>
             <Input
+              type="number"
               name="retail"
               id="retailPriceField"
               autoComplete="retail-price"
@@ -69,6 +70,7 @@ function AddProductForm(props) {
           <FormControl margin="normal" required fullWidth>
             <InputLabel htmlFor="retailPriceField">Number of units</InputLabel>
             <Input
+              type="number"
               name="num-units"
               id="numUnitsField"
               autoComplete="number-of-units"

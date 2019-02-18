@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 
-import ProductList from "./ProductList";
+import ProductList from "../components/ProductList";
 
 export default class CartPage extends Component {
   static propTypes = {

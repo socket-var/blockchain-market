@@ -4,8 +4,8 @@ import { Route, Redirect } from "react-router-dom";
 import HomePage from "../HomePage";
 import SignupPage from "../auth/SignupPage";
 import LoginPage from "../auth/LoginPage";
-import AdminLandingPage from "../landing/AdminLandingPage";
-import UserLandingPage from "../landing/UserLandingPage";
+import AdminLandingPage from "../protected/admin/AdminLandingPage";
+import UserLandingPage from "../protected/user/UserLandingPage";
 
 const AppRoutes = ({
   isLoggedIn,

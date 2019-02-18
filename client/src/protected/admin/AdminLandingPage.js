@@ -2,10 +2,13 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
 
-import UserList from "./UserList";
+import CustomList from "../components/CustomList";
 
 export default class AdminLandingPage extends Component {
-  static propTypes = {};
+  static propTypes = {
+    userId: PropTypes.string.isRequired,
+    openSnackbar: PropTypes.func.isRequired
+  };
 
   state = { users: [] };
 
@@ -58,7 +61,11 @@ export default class AdminLandingPage extends Component {
   render() {
     return (
       <div>
-        <UserList users={this.state.users} deleteFunction={this.removeUser} />
+        <CustomList
+          data={this.state.users}
+          onClickFunction={this.removeUser}
+          placeholder={"No registered users yet"}
+        />
       </div>
     );
   }

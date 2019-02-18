@@ -7,7 +7,7 @@ const AuthContext = React.createContext();
 
 export default class AuthProvider extends Component {
   static propTypes = {
-    // prop: PropTypes
+    openSnackbar: PropTypes.func.isRequired
   };
 
   state = {

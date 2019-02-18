@@ -3,18 +3,10 @@ import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
-import ListItemAvatar from "@material-ui/core/ListItemAvatar";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 import ListItemText from "@material-ui/core/ListItemText";
-import Avatar from "@material-ui/core/Avatar";
 import IconButton from "@material-ui/core/IconButton";
-import FormGroup from "@material-ui/core/FormGroup";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
-import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
-import FolderIcon from "@material-ui/icons/Folder";
 import DeleteIcon from "@material-ui/icons/Delete";
 
 const styles = theme => ({
@@ -30,30 +22,21 @@ const styles = theme => ({
   }
 });
 
-class InteractiveList extends React.Component {
-  state = {
-    dense: false,
-    secondary: false
-  };
-
+class CustomList extends React.Component {
   render() {
-    const { classes, users, deleteFunction } = this.props;
-    const { dense, secondary } = this.state;
+    const { classes, data, onClickFunction, placeholder } = this.props;
 
-    const UserListItem = [];
+    const listItem = [];
 
-    users.forEach((user, idx) => {
-      UserListItem.push(
-        <ListItem key={user._id}>
-          <ListItemText
-            primary={user.email}
-            // secondary={secondary ? "Secondary text" : null}
-          />
+    data.forEach((item, idx) => {
+      listItem.push(
+        <ListItem key={item._id}>
+          <ListItemText primary={item.email} />
           <ListItemSecondaryAction>
             <IconButton
               aria-label="Delete"
-              onClick={deleteFunction}
-              id={user._id}
+              onClick={onClickFunction}
+              id={item._id}
               data-key={idx}
             >
               <DeleteIcon />
@@ -65,21 +48,26 @@ class InteractiveList extends React.Component {
 
     return (
       <div className={classes.root}>
-        {/* <Grid item xs={12} md={6}> */}
         <Typography variant="h6" className={classes.title}>
           Registered Users:
         </Typography>
         <div className={classes.demo}>
-          <List dense={dense}>{UserListItem}</List>
+          {listItem.length > 0 ? (
+            <List>{listItem}</List>
+          ) : (
+            <div>{placeholder || "No entries to display here"} </div>
+          )}
         </div>
-        {/* </Grid> */}
       </div>
     );
   }
 }
 
-InteractiveList.propTypes = {
-  classes: PropTypes.object.isRequired
+CustomList.propTypes = {
+  classes: PropTypes.object.isRequired,
+  data: PropTypes.array,
+  onClickFunction: PropTypes.func,
+  placeholder: PropTypes.string
 };
 
-export default withStyles(styles)(InteractiveList);
+export default withStyles(styles)(CustomList);

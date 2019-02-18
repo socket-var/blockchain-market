@@ -7,7 +7,6 @@ import CardContent from "@material-ui/core/CardContent";
 import Button from "@material-ui/core/Button";
 
 import Typography from "@material-ui/core/Typography";
-import red from "@material-ui/core/colors/red";
 
 const styles = theme => ({
   card: {
@@ -135,8 +134,15 @@ class ProductCard extends React.Component {
 
 ProductCard.propTypes = {
   classes: PropTypes.object.isRequired,
+  buttonId: PropTypes.string.isRequired,
+  productName: PropTypes.string.isRequired,
+  retailPrice: PropTypes.number.isRequired,
+  imageUrl: PropTypes.string,
+  productIdx: PropTypes.number.isRequired,
   addToCart: PropTypes.func,
-  buyProduct: PropTypes.func
+  buyProduct: PropTypes.func,
+  removeFromCart: PropTypes.func,
+  removeProductFromSale: PropTypes.func
 };
 
 export default withStyles(styles)(ProductCard);
