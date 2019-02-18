@@ -12,7 +12,6 @@ export default class SellPage extends Component {
   static propTypes = {
     products: PropTypes.array.isRequired,
     userId: PropTypes.string.isRequired,
-    errorMessage: PropTypes.string.isRequired,
     addProductForSale: PropTypes.func.isRequired,
     removeProductFromSale: PropTypes.func.isRequired,
     onInputChange: PropTypes.func.isRequired,
@@ -29,7 +28,6 @@ export default class SellPage extends Component {
   render() {
     const {
       products,
-      errorMessage,
       addProductForSale,
       removeProductFromSale,
       onInputChange
@@ -42,7 +40,6 @@ export default class SellPage extends Component {
         />
         <ProductList
           products={products}
-          errorMessage={errorMessage}
           removeProductFromSale={removeProductFromSale}
         />
       </div>

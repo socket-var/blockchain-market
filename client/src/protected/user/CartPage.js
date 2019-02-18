@@ -7,7 +7,6 @@ export default class CartPage extends Component {
   static propTypes = {
     userId: PropTypes.string.isRequired,
     products: PropTypes.array.isRequired,
-    errorMessage: PropTypes.string.isRequired,
     getData: PropTypes.func.isRequired
   };
 
@@ -18,12 +17,11 @@ export default class CartPage extends Component {
   }
 
   render() {
-    const { products, errorMessage, buyProduct, removeFromCart } = this.props;
+    const { products, buyProduct, removeFromCart } = this.props;
     return (
       <div>
         <ProductList
           products={products}
-          errorMessage={errorMessage}
           buyProduct={buyProduct}
           removeFromCart={removeFromCart}
         />

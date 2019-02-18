@@ -20,7 +20,7 @@ function signupFunction(req, res, next) {
 
         newUser.save(function(err, savedUser) {
           if (err) {
-            return res.status(401).json({ error: "Signup failed" });
+            return res.status(401).json({ message: "Signup failed" });
           }
           res.status(200).json({ message: "Signup success!", user: savedUser });
         });
@@ -28,7 +28,7 @@ function signupFunction(req, res, next) {
       .catch(function(err) {
         res
           .status(500)
-          .send({ error: "Internal Server Error. Contact administrator" });
+          .send({ message: "Login failed due to unknown reason. Try again." });
       });
   }
 
@@ -37,7 +37,7 @@ function signupFunction(req, res, next) {
     Promise.reject("Account with this email already exists").catch(function(
       err
     ) {
-      res.status(401).send({ error: err });
+      res.status(401).send({ message: err });
     });
     return true;
   }
@@ -66,14 +66,14 @@ function loginFunction(req, res, next) {
       .catch(function(err) {
         res
           .status(500)
-          .json({ error: "Internal Server Error. Contact Administrator" });
+          .json({ message: "Signup failed due to unknown reason. Try again." });
       });
   }
 
   function signupReject() {
     Promise.reject("Your account does not exist, please register").catch(
       function(err) {
-        res.status(401).json({ error: err });
+        res.status(401).json({ message: err });
       }
     );
   }

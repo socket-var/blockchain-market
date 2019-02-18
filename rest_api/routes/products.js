@@ -11,26 +11,38 @@ function getAllProducts(req, res, next) {
     .sort({ _id: -1 })
     .then(function(docs) {
       // if user exists call reject else register the user
-      res.status(200).json({ products: docs });
+      if (docs) {
+        res.status(200).json({ products: docs });
+      } else {
+        res.status(404).json({ message: "No products yet to show" });
+      }
     })
     .catch(function(err) {
-      err;
-      res.status(500).json({ errorMessage: "Internal server error" });
+      console.error(err);
+      res.status(500).json({
+        message: "Failed to load products. Try again."
+      });
     });
 }
 
 // called when login post request is made
 function getAllPostsByCurrentUser(req, res, next) {
   const userId = req.params.userId;
-  // use user object to gte this faster
+  // TODO: use user object to access using one field
   Product.find({ createdBy: userId })
     .sort({ _id: -1 })
     .then(docs => {
-      res.status(200).json({ products: docs });
+      if (docs) {
+        res.status(200).json({ products: docs });
+      } else {
+        res.status(404).json({ message: "No products yet to show" });
+      }
     })
     .catch(err => {
-      err;
-      res.status(500).json({ errorMessage: "Internal server error" });
+      console.error(err);
+      res.status(500).json({
+        message: "Failed to load products. Try again."
+      });
     });
 }
 
@@ -50,12 +62,19 @@ function removeProductFromSale(req, res, next) {
       return user;
     })
     .then(user => Product.findByIdAndDelete(productId))
-    .then(product => res.status(200).json({ product }))
+    .then(product => {
+      if (product) {
+        res
+          .status(200)
+          .json({ product, message: "Product deleted successfully" });
+      }
+      res.status(404).json({ message: "Product not found" });
+    })
     .catch(err => {
-      console.debug(err);
+      console.error(err);
       res
         .status(500)
-        .json({ errorMessage: "Failed to remove the product! Try again" });
+        .json({ message: "Failed to remove the product! Try again" });
     });
 }
 
@@ -83,12 +102,16 @@ function addProductForSale(req, res, next) {
       user.itemsForSale.push(savedProduct._id);
       return user.save();
     })
-    .then(user => res.status(200).json({ product: savedProduct }))
+    .then(user =>
+      res
+        .status(200)
+        .json({ product: savedProduct, message: "Product successfully added" })
+    )
     .catch(err => {
       console.debug(err);
       res
         .status(500)
-        .json({ errorMessage: "Failed to save the product! Try again" });
+        .json({ message: "Failed to save the product! Try again" });
     });
 }
 

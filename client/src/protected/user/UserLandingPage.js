@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { Route, Switch } from "react-router-dom";
 import axios from "axios";
-
+import ajaxErrorHandler from "../../common/functions/ajaxErrorHandler";
 // user routes
 
 import SellPage from "./SellPage";
@@ -17,10 +17,14 @@ export default class UserLandingPage extends Component {
 
   state = {
     products: [],
-    errorMessage: null,
     productNameField: "",
     retailPriceField: "",
     numUnitsField: ""
+  };
+
+  catchFunction = err => {
+    let message = ajaxErrorHandler(err);
+    this.props.openSnackbar(message);
   };
 
   getData = apiUrl => {
@@ -29,11 +33,7 @@ export default class UserLandingPage extends Component {
       .then(res => {
         this.setState({ products: res.data.products });
       })
-      .catch(err => {
-        this.setState({
-          errorMessage: "Cannot retrieve products right now!!"
-        });
-      });
+      .catch(this.catchFunction);
   };
 
   addProductForSale = evt => {
@@ -55,13 +55,10 @@ export default class UserLandingPage extends Component {
         numUnits: numUnitsField
       })
       .then(res => {
-        console.debug(res.data);
-        this.props.openSnackbar("New Product Added");
+        this.props.openSnackbar(res.data.message);
         this.setState({ products: [res.data.product, ...products] });
       })
-      .catch(err => {
-        console.debug(err);
-      });
+      .catch(this.catchFunction);
   };
 
   removeProductFromSale = evt => {
@@ -78,7 +75,7 @@ export default class UserLandingPage extends Component {
       })
       .then(res => {
         console.debug(res.data);
-        this.props.openSnackbar("Product removed from sale");
+        this.props.openSnackbar(res.data.message);
         this.setState(function(prevState) {
           const products = prevState.products;
           products.splice(idx, 1);
@@ -87,9 +84,7 @@ export default class UserLandingPage extends Component {
           };
         });
       })
-      .catch(err => {
-        console.debug(err);
-      });
+      .catch(this.catchFunction);
   };
 
   addToCart = evt => {
@@ -99,12 +94,9 @@ export default class UserLandingPage extends Component {
         productId
       })
       .then(res => {
-        this.props.openSnackbar("Added item to cart");
-        console.debug(res.data, "Added to cart");
+        this.props.openSnackbar(res.data.message);
       })
-      .catch(err => {
-        console.debug(err);
-      });
+      .catch(this.catchFunction);
   };
 
   buyProduct = evt => {
@@ -118,7 +110,7 @@ export default class UserLandingPage extends Component {
       .then(res => {
         console.debug(res.data);
         // decrement numUnits by 1 make sure to do this
-        this.props.openSnackbar("Congratulations!! You bought the product!!");
+        this.props.openSnackbar(res.data.message);
         console.debug("Buy success");
         this.setState(function(prevState) {
           const products = prevState.products;
@@ -128,9 +120,7 @@ export default class UserLandingPage extends Component {
           };
         });
       })
-      .catch(err => {
-        console.debug(err);
-      });
+      .catch(this.catchFunction);
   };
 
   removeFromCart = evt => {
@@ -142,7 +132,7 @@ export default class UserLandingPage extends Component {
         productId
       })
       .then(res => {
-        this.props.openSnackbar("Removed item from cart");
+        this.props.openSnackbar(res.data.message);
 
         this.setState(function(prevState) {
           const products = prevState.products;
@@ -154,9 +144,7 @@ export default class UserLandingPage extends Component {
 
         console.debug(res.data, "Removed from cart");
       })
-      .catch(err => {
-        console.debug(err);
-      });
+      .catch(this.catchFunction);
   };
 
   onInputChange = evt => {
@@ -168,7 +156,7 @@ export default class UserLandingPage extends Component {
   render() {
     const { match, userId } = this.props;
 
-    const { products, errorMessage } = this.state;
+    const { products } = this.state;
 
     return (
       <Switch>
@@ -179,7 +167,6 @@ export default class UserLandingPage extends Component {
             <BuyPage
               {...props}
               products={products}
-              errorMessage={errorMessage}
               getData={this.getData}
               addToCart={this.addToCart}
               buyProduct={this.buyProduct}
@@ -194,7 +181,6 @@ export default class UserLandingPage extends Component {
               {...props}
               userId={userId}
               products={products}
-              errorMessage={errorMessage}
               getData={this.getData}
               onInputChange={this.onInputChange}
               addProductForSale={this.addProductForSale}
@@ -210,7 +196,6 @@ export default class UserLandingPage extends Component {
               {...props}
               userId={userId}
               products={products}
-              errorMessage={errorMessage}
               getData={this.getData}
               buyProduct={this.buyProduct}
               removeFromCart={this.removeFromCart}

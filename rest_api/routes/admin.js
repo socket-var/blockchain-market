@@ -11,13 +11,16 @@ function listAllUsers(req, res, next) {
       if (user.isAdmin) {
         return User.find({});
       } else {
-        throw "User is not an admin";
+        return Promise.reject("Unauthorized operation.");
       }
     })
-    .then(users => res.status(200).json({ users }))
+    .then(
+      users => res.status(200).json({ users }),
+      reason => res.status(401).json({ message: reason })
+    )
     .catch(err => {
-      console.debug(err);
-      res.status(403).json({ errorMessage: "Unauthorized or Server Error" });
+      console.error(err);
+      res.status(500).json({ message: "Server error" });
     });
 }
 
@@ -29,16 +32,25 @@ function deleteUser(req, res, next) {
       if (user.isAdmin) {
         return User.findByIdAndDelete(userIdToRemove);
       } else {
-        throw "User is not an admin";
+        return Promise.reject("Unauthorized operation.");
       }
     })
-    .then(doc => {
-      console.debug("User deleted successfully");
-      res.status(200).json({ user: doc });
-    })
+    .then(
+      doc => {
+        if (doc) {
+          console.debug("User deleted successfully");
+          res
+            .status(200)
+            .json({ user: doc, message: "User deleted successfully" });
+        } else {
+          res.status(404).json({ message: "User to delete not found" });
+        }
+      },
+      reason => reason.status(401).json({ message: reason })
+    )
     .catch(err => {
-      console.debug(err);
-      res.status(500).json({ errorMessage: "Internal Server Error" });
+      console.error(err);
+      res.status(500).json({ message: "Internal Server Error" });
     });
 }
 

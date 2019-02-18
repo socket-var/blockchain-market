@@ -53,11 +53,11 @@ function changeCart(operation) {
       })
       .then(doc => {
         console.debug(doc, "success saving to cart");
-        res.status(200).json({ product: doc });
+        res.status(200).json({ product: doc, message: "Added to cart" });
       })
       .catch(err => {
         console.debug(err);
-        res.status(500).json({ errorMessage: "Internal Server Error" });
+        res.status(500).json({ message: "Internal Server Error" });
       });
   };
 }
@@ -73,7 +73,7 @@ function buyProduct(req, res, next) {
     .then(product => {
       console.debug(product.numUnits);
       if (!product) {
-        throw "Not in stock";
+        throw "Product not found or out of stock";
       }
       // this should be async when things get real
       console.debug("decrementing numUnits");
@@ -82,12 +82,19 @@ function buyProduct(req, res, next) {
       return Promise.resolve(product);
     })
     .then(product => product.save())
-    .then(product => {
-      res.status(200).json({ product });
-    })
+    .then(
+      product => {
+        if (product) {
+          res
+            .status(200)
+            .json({ product, message: "Congrats!! You bought the product" });
+        }
+      },
+      reason => res.status(404).json({ message: reason })
+    )
     .catch(err => {
       console.debug(err);
-      res.status(500).json({ errorMessage: "Internal Server Error" });
+      res.status(500).json({ message: "Buy failed!!" });
     });
 }
 

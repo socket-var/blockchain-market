@@ -5,7 +5,6 @@ import ProductList from "../components/ProductList";
 export default class BuyPage extends Component {
   static propTypes = {
     products: PropTypes.array.isRequired,
-    errorMessage: PropTypes.string.isRequired,
     addToCart: PropTypes.func.isRequired,
     buyProduct: PropTypes.func.isRequired,
     getData: PropTypes.func.isRequired
@@ -18,13 +17,12 @@ export default class BuyPage extends Component {
   // advanced: we will use componentWillReceiveProps or CDU to fetch data if count locally and globally doesn't match
 
   render() {
-    const { products, errorMessage, addToCart, buyProduct } = this.props;
+    const { products, addToCart, buyProduct } = this.props;
 
     return (
       <div>
         <ProductList
           products={products}
-          errorMessage={errorMessage}
           addToCart={addToCart}
           buyProduct={buyProduct}
         />

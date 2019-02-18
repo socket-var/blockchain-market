@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import axios from "axios";
 
 import CustomList from "../components/CustomList";
+import ajaxErrorHandler from "../../common/functions/ajaxErrorHandler";
 
 export default class AdminLandingPage extends Component {
   static propTypes = {
@@ -11,6 +12,11 @@ export default class AdminLandingPage extends Component {
   };
 
   state = { users: [] };
+
+  catchFunction = err => {
+    let message = ajaxErrorHandler(err);
+    this.props.openSnackbar({ message });
+  };
 
   removeUser = evt => {
     const { userId } = this.props;
@@ -23,8 +29,7 @@ export default class AdminLandingPage extends Component {
     axios
       .delete(`/api/admin/${userId}/remove_user/${userIdToRemove}`)
       .then(res => {
-        console.debug("User has been removed");
-        this.props.openSnackbar("User has been removed");
+        this.props.openSnackbar(res.data.message);
         this.setState(function(prevState) {
           const users = Object.assign([], prevState.users);
           users.splice(userIdx, 1);
@@ -34,11 +39,7 @@ export default class AdminLandingPage extends Component {
           };
         });
       })
-      .catch(err => {
-        this.setState({
-          errorMessage: "Cannot retrieve products right now!!"
-        });
-      });
+      .catch(this.catchFunction);
   };
 
   listAllUsers = apiUrl => {
@@ -47,11 +48,7 @@ export default class AdminLandingPage extends Component {
       .then(res => {
         this.setState({ users: res.data.users });
       })
-      .catch(err => {
-        this.setState({
-          errorMessage: "Cannot retrieve products right now!!"
-        });
-      });
+      .catch(this.catchFunction);
   };
 
   componentDidMount() {

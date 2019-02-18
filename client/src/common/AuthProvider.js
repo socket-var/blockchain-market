@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
-
+import ajaxErrorHandler from "./functions/ajaxErrorHandler";
 // create context for user authentication
 const AuthContext = React.createContext();
 
@@ -17,7 +17,15 @@ export default class AuthProvider extends Component {
     emailField: "",
     passwordField: "",
     confirmPasswordField: "",
-    errorMessage: ""
+    message: ""
+  };
+
+  catchFunction = err => {
+    let message = ajaxErrorHandler(err);
+
+    this.props.openSnackbar(message);
+
+    this.setState({ message });
   };
 
   signupHandler = evt => {
@@ -32,17 +40,17 @@ export default class AuthProvider extends Component {
           password: passwordField
         })
         .then(res => {
-          const user = res.data.user;
+          const { user, message } = res.data;
 
-          this.props.openSnackbar("Signed up successfully");
-
+          this.props.openSnackbar(message);
           this.setState({ isLoggedIn: true, currentUserId: user._id });
         })
-        .catch(err => {
-          this.setState({ errorMessage: err });
-        });
+        .catch(this.catchFunction);
     } else {
-      this.setState({ errorMessage: "Passwords do not match" });
+      this.props.openSnackbar("Passwords do not match. Please try again!");
+      this.setState({
+        message: "Passwords do not match. Please try again!"
+      });
     }
   };
 
@@ -57,10 +65,8 @@ export default class AuthProvider extends Component {
         password: passwordField
       })
       .then(res => {
-        this.props.openSnackbar("Logged in successfully");
-
-        const user = res.data.user;
-        console.debug(user);
+        const { user, message } = res.data;
+        this.props.openSnackbar(message);
         if (user.isAdmin) {
           this.setState({
             isAdminLoggedIn: true,
@@ -70,9 +76,7 @@ export default class AuthProvider extends Component {
           this.setState({ isLoggedIn: true, currentUserId: user._id });
         }
       })
-      .catch(err => {
-        this.setState({ errorMessage: err });
-      });
+      .catch(this.catchFunction);
   };
 
   signoutHandler = () => {
