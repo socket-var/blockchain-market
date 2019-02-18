@@ -14,7 +14,7 @@ export default class CartPage extends Component {
   componentDidMount() {
     const { getData, userId } = this.props;
 
-    getData(`/api/${userId}/cart`);
+    getData(`/api/user/${userId}/cart`);
   }
 
   render() {

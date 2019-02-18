@@ -23,7 +23,7 @@ export default class SellPage extends Component {
   componentDidMount() {
     const { getData, userId } = this.props;
 
-    getData(`/api/userPosts/${userId}`);
+    getData(`/api/products/by/${userId}`);
   }
 
   render() {

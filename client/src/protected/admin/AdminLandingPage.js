@@ -21,7 +21,7 @@ export default class AdminLandingPage extends Component {
     console.debug(userIdToRemove, userIdx);
 
     axios
-      .delete(`/api/${userId}/admin/remove_user/${userIdToRemove}`)
+      .delete(`/api/admin/${userId}/remove_user/${userIdToRemove}`)
       .then(res => {
         console.debug("User has been removed");
         this.props.openSnackbar("User has been removed");
@@ -55,7 +55,7 @@ export default class AdminLandingPage extends Component {
   };
 
   componentDidMount() {
-    this.listAllUsers(`/api/${this.props.userId}/admin/list_users`);
+    this.listAllUsers(`/api/admin/${this.props.userId}/list_users`);
   }
 
   render() {

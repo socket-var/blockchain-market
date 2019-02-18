@@ -8,7 +8,11 @@ const mongoose = require("mongoose");
 
 // router definition files
 const authRouter = require("./rest_api/routes/auth");
+const adminRouter = require("./rest_api/routes/admin");
+const userRouter = require("./rest_api/routes/user");
 const productRouter = require("./rest_api/routes/products");
+
+//  1 admin router, user router, productRouter
 
 // instantiate server
 const app = express();
@@ -32,7 +36,9 @@ app.use(express.static(path.join(__dirname, "client", "build")));
 
 // use routes
 app.use("/auth", authRouter);
-app.use("/api", productRouter);
+app.use("/api/admin", adminRouter);
+app.use("/api/user", userRouter);
+app.use("/api/products", productRouter);
 
 // needed for Single-page application to reroute to index page
 app.get("*", function(req, res, next) {
@@ -51,7 +57,7 @@ app.use(function(err, req, res, next) {
   res.locals.error = req.app.get("env") === "development" ? err : {};
 
   // render the error page
-  res.status(err.status || 500).json({errorMessage: "Internal Server Error"});
+  res.status(err.status || 500).json({ errorMessage: "Internal Server Error" });
 });
 
 module.exports = app;

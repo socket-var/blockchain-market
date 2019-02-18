@@ -48,7 +48,7 @@ export default class UserLandingPage extends Component {
     evt.preventDefault();
     // refactor this api call to
     axios
-      .post(`/api/${userId}/addProductForSale`, {
+      .post(`/api/products/${userId}/addProductForSale`, {
         productName: productNameField,
         retailPrice: retailPriceField,
         createdBy: userId,
@@ -73,7 +73,7 @@ export default class UserLandingPage extends Component {
     evt.preventDefault();
     // refactor this api call to
     axios
-      .post(`/api/${userId}/removeProductFromSale`, {
+      .post(`/api/products/${userId}/removeProductFromSale`, {
         productId
       })
       .then(res => {
@@ -95,7 +95,7 @@ export default class UserLandingPage extends Component {
   addToCart = evt => {
     const productId = evt.target.id;
     axios
-      .post(`/api/${this.props.userId}/cart/add`, {
+      .post(`/api/user/${this.props.userId}/cart/add`, {
         productId
       })
       .then(res => {
@@ -112,7 +112,7 @@ export default class UserLandingPage extends Component {
     const idx = evt.target.dataset.key;
 
     axios
-      .post(`/api/${this.props.userId}/buy`, {
+      .post(`/api/user/${this.props.userId}/buy`, {
         productId
       })
       .then(res => {
@@ -138,7 +138,7 @@ export default class UserLandingPage extends Component {
     const idx = evt.target.dataset.key;
 
     axios
-      .post(`/api/${this.props.userId}/cart/remove`, {
+      .post(`/api/user/${this.props.userId}/cart/remove`, {
         productId
       })
       .then(res => {
