@@ -9,7 +9,9 @@ function listAllUsers(req, res, next) {
   User.findOne({ _id: userId })
     .then(user => {
       if (user.isAdmin) {
-        return User.find({});
+        return User.find({})
+          .where("_id")
+          .ne(userId);
       } else {
         return Promise.reject("Unauthorized operation.");
       }

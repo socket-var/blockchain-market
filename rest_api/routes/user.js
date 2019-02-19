@@ -3,6 +3,8 @@ const regUserRouter = express.Router();
 const Product = require("../models/Product");
 const User = require("../models/auth");
 
+const mongoose = require("mongoose");
+
 function getCart(req, res, next) {
   const userId = req.params.userId;
 
@@ -66,6 +68,10 @@ function changeCart(operation) {
 // this later would handle transaction between buyer and seller, for now it just decrements counter
 function buyProduct(req, res, next) {
   const productId = req.body.productId;
+  const buyerId = req.params.userId;
+  let productToBuy;
+  let buyer;
+  let seller;
   // check if in stock
   Product.findOne({ _id: productId })
     .where("numUnits")
@@ -75,26 +81,53 @@ function buyProduct(req, res, next) {
       if (!product) {
         throw "Product not found or out of stock";
       }
-      // this should be async when things get real
-      console.debug("decrementing numUnits");
-      product.numUnits -= 1;
-      console.debug(product.numUnits);
-      return Promise.resolve(product);
+      productToBuy = product;
+      return User.findOne({ _id: buyerId });
     })
-    .then(product => product.save())
-    .then(
-      product => {
-        if (product) {
-          res
-            .status(200)
-            .json({ product, message: "Congrats!! You bought the product" });
-        }
-      },
-      reason => res.status(404).json({ message: reason })
-    )
-    .catch(err => {
-      console.debug(err);
-      res.status(500).json({ message: "Buy failed!!" });
+    .then(user => {
+      if (!user) {
+        throw "Buy failed 1!!";
+      }
+      buyer = user;
+      console.debug(productToBuy.createdBy);
+      return User.findOne({ _id: productToBuy.createdBy });
+    })
+    .then(user => {
+      if (!user) {
+        throw "Buy failed 2!!";
+      }
+      seller = user;
+
+      const transactionId = mongoose.Types.ObjectId();
+      console.debug(transactionId);
+
+      buyer.purchases.push({
+        transactionId,
+        productId: productToBuy._id,
+        boughtFrom: seller._id
+      });
+
+      seller.sales.push({
+        transactionId,
+        productId: productToBuy._id,
+        soldTo: seller._id
+      });
+      productToBuy.numUnits -= 1;
+      // console.debug(productToBuy.numUnits);
+      return Promise.all([buyer.save(), seller.save(), productToBuy.save()]);
+    })
+    .then(([buyerObj, sellerObj, productObj]) => {
+      if (buyerObj && sellerObj && productObj) {
+        return res.status(200).json({
+          product: productObj,
+          message: "Congrats!! You bought the product"
+        });
+      }
+      throw "Buy failed 3!!";
+    })
+    .catch(reason => {
+      console.debug(reason);
+      res.status(404).json({ message: reason });
     });
 }
 
