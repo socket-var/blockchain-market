@@ -11,7 +11,9 @@ contract Market {
     address private chairperson;
     mapping(address => User) private users;
 
-    uint private numTokens;
+    bytes32[] private transactions;
+    uint private totalTokensInNetwork;
+    uint private tokensRemaining;
     uint private nonce = 0;
 
      
@@ -45,7 +47,7 @@ contract Market {
     event UserRegistered(address newUser);
     event DepositSuccess(address newUser, uint amount);
     event UserUnregistered(address userAddress);
-    event TokensAdded(uint numTokens);
+    event TokensAdded(uint totalTokensInNetwork);
 
     event TransferSuccess(address from, address to, uint priceInTokens);
     event BuySuccess(address from, address to, uint priceInTokens);
@@ -58,24 +60,31 @@ contract Market {
     }
     
     /* Chairperson functions go here */
-
+    
+    /* Get and set tokens*/
     function totalSupply() public view onlyChairperson returns(uint) {
-        return numTokens;
+        return totalTokensInNetwork;
+    }
+
+    function getTokenBalance() public view onlyChairperson returns(uint) {
+        return tokensRemaining;
     }
 
     function balanceOf(address userAddress) public view onlyChairpersonOrSelf(userAddress) returns(uint) {
         return users[userAddress].balance;
     }
 
-    /* add more tokens into the system - can only be called by the owner*/
     function addTokens(uint amount) public onlyChairperson {
-        numTokens += amount;
+        totalTokensInNetwork += amount;
+        tokensRemaining += amount;
         emit TokensAdded(amount);
     }
 
-    function addDeposit(address newUser, uint amount) internal {
-        require(numTokens - amount >= 0, "Insufficient tokens. Need to generate more for registering new users");
-        users[newUser].balance = amount; 
+    /* Register and unregister users */
+    function addDeposit(address userAddress, uint amount) public onlyChairpersonOrSelf(userAddress) {
+        require(totalTokensInNetwork - amount >= 0, "Insufficient tokens. Need to generate more for registering new users");
+        tokensRemaining -= amount;
+        users[userAddress].balance = amount; 
     }
 
     function register(address newUser, string memory userType, uint amount) public onlyChairperson {
@@ -91,11 +100,18 @@ contract Market {
         emit UserRegistered(newUser);
     }
     
-    function unregister(address userAddress) public onlyChairperson{
-        require(users[userAddress].isRegistered == true, "Error: User to unregister not found");
+    function revokeTokens(address userAddress) internal {
+        if (users[userAddress].balance > 0) {
+            tokensRemaining += users[userAddress].balance;
+            delete users[userAddress].balance;
+        }
+    }
 
+    function unregister(address userAddress) public onlyChairperson {
+        require(users[userAddress].isRegistered == true, "Error: User to unregister not found");
+        revokeTokens(userAddress);
         delete users[userAddress];
-        // revokeTokens(userAddress);
+        
         emit UserUnregistered(userAddress);
     }
 
@@ -116,11 +132,13 @@ contract Market {
         
         settlePayment(msg.sender, seller, priceInTokens);
 
-        bytes memory ret = abi.encodePacked(nonce, productId, msg.sender, seller, priceInTokens);
+        bytes32 transactionId = keccak256(abi.encodePacked(nonce, productId, msg.sender, seller, priceInTokens));
         
         nonce += 1;
 
-        return keccak256(ret);
+        transactions.push(transactionId);
+
+        return transactionId;
     }
 
 }
