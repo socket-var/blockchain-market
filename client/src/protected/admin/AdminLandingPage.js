@@ -18,7 +18,7 @@ export default class AdminLandingPage extends Component {
     this.props.openSnackbar({ message });
   };
 
-  removeUser = evt => {
+  removeUser = async evt => {
     const { userId } = this.props;
 
     const userIdToRemove = evt.target.id;
@@ -26,29 +26,31 @@ export default class AdminLandingPage extends Component {
 
     console.debug(userIdToRemove, userIdx);
 
-    axios
-      .delete(`/api/admin/${userId}/remove_user/${userIdToRemove}`)
-      .then(res => {
-        this.props.openSnackbar(res.data.message);
-        this.setState(function(prevState) {
-          const users = Object.assign([], prevState.users);
-          users.splice(userIdx, 1);
+    try {
+      const deleteResult = await axios.delete(
+        `/api/admin/${userId}/remove_user/${userIdToRemove}`
+      );
 
-          return {
-            users
-          };
-        });
-      })
-      .catch(this.catchFunction);
+      this.props.openSnackbar(deleteResult.data.message);
+      this.setState(function(prevState) {
+        const users = Object.assign([], prevState.users);
+        users.splice(userIdx, 1);
+        return {
+          users
+        };
+      });
+    } catch (err) {
+      this.catchFunction(err);
+    }
   };
 
-  listAllUsers = apiUrl => {
-    axios
-      .get(apiUrl)
-      .then(res => {
-        this.setState({ users: res.data.users });
-      })
-      .catch(this.catchFunction);
+  listAllUsers = async apiUrl => {
+    try {
+      const listOfUsers = await axios.get(apiUrl);
+      this.setState({ users: listOfUsers.data.users });
+    } catch (err) {
+      this.catchFunction(err);
+    }
   };
 
   componentDidMount() {

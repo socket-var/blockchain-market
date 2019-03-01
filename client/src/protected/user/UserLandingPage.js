@@ -27,16 +27,16 @@ export default class UserLandingPage extends Component {
     this.props.openSnackbar(message);
   };
 
-  getData = apiUrl => {
-    axios
-      .get(apiUrl)
-      .then(res => {
-        this.setState({ products: res.data.products });
-      })
-      .catch(this.catchFunction);
+  getData = async apiUrl => {
+    try {
+      const result = await axios.get(apiUrl);
+      this.setState({ products: result.data.products });
+    } catch (err) {
+      this.catchFunction(err);
+    }
   };
 
-  addProductForSale = evt => {
+  addProductForSale = async evt => {
     const {
       productNameField,
       retailPriceField,
@@ -46,105 +46,111 @@ export default class UserLandingPage extends Component {
     const { userId } = this.props;
 
     evt.preventDefault();
-    // refactor this api call to
-    axios
-      .post(`/api/products/${userId}/addProductForSale`, {
-        productName: productNameField,
-        retailPrice: retailPriceField,
-        createdBy: userId,
-        numUnits: numUnitsField
-      })
-      .then(res => {
-        this.props.openSnackbar(res.data.message);
-        this.setState({ products: [res.data.product, ...products] });
-      })
-      .catch(this.catchFunction);
+
+    try {
+      const result = await axios.post(
+        `/api/products/${userId}/addProductForSale`,
+        {
+          productName: productNameField,
+          retailPrice: retailPriceField,
+          createdBy: userId,
+          numUnits: numUnitsField
+        }
+      );
+      this.props.openSnackbar(result.data.message);
+      this.setState({ products: [result.data.product, ...products] });
+    } catch (err) {
+      this.catchFunction(err);
+    }
   };
 
-  removeProductFromSale = evt => {
+  removeProductFromSale = async evt => {
     const productId = evt.target.id;
     const idx = evt.target.dataset.key;
 
     const { userId } = this.props;
 
     evt.preventDefault();
-    // refactor this api call to
-    axios
-      .post(`/api/products/${userId}/removeProductFromSale`, {
-        productId
-      })
-      .then(res => {
-        console.debug(res.data);
-        this.props.openSnackbar(res.data.message);
-        this.setState(function(prevState) {
-          const products = prevState.products;
-          products.splice(idx, 1);
-          return {
-            products
-          };
-        });
-      })
-      .catch(this.catchFunction);
+
+    try {
+      const result = await axios.post(
+        `/api/products/${userId}/removeProductFromSale`,
+        {
+          productId
+        }
+      );
+      this.props.openSnackbar(result.data.message);
+      this.setState(function(prevState) {
+        const products = prevState.products;
+        products.splice(idx, 1);
+        return {
+          products
+        };
+      });
+    } catch (err) {
+      this.catchFunction(err);
+    }
   };
 
-  addToCart = evt => {
+  addToCart = async evt => {
     const productId = evt.target.id;
-    axios
-      .post(`/api/user/${this.props.userId}/cart/add`, {
-        productId
-      })
-      .then(res => {
-        this.props.openSnackbar(res.data.message);
-      })
-      .catch(this.catchFunction);
+
+    try {
+      const result = await axios.post(
+        `/api/user/${this.props.userId}/cart/add`,
+        {
+          productId
+        }
+      );
+      this.props.openSnackbar(result.data.message);
+    } catch (err) {
+      this.catchFunction(err);
+    }
   };
 
-  buyProduct = evt => {
-    const productId = evt.target.id;
-    const idx = evt.target.dataset.key;
-
-    axios
-      .post(`/api/user/${this.props.userId}/buy`, {
-        productId
-      })
-      .then(res => {
-        console.debug(res.data);
-        // decrement numUnits by 1 make sure to do this
-        this.props.openSnackbar(res.data.message);
-        console.debug("Buy success");
-        this.setState(function(prevState) {
-          const products = prevState.products;
-          products[idx] = res.data.product;
-          return {
-            products
-          };
-        });
-      })
-      .catch(this.catchFunction);
-  };
-
-  removeFromCart = evt => {
+  buyProduct = async evt => {
     const productId = evt.target.id;
     const idx = evt.target.dataset.key;
 
-    axios
-      .post(`/api/user/${this.props.userId}/cart/remove`, {
+    try {
+      const result = await axios.post(`/api/user/${this.props.userId}/buy`, {
         productId
-      })
-      .then(res => {
-        this.props.openSnackbar(res.data.message);
+      });
+      this.props.openSnackbar(result.data.message);
+      this.setState(function(prevState) {
+        const products = prevState.products;
+        products[idx] = result.data.product;
+        return {
+          products
+        };
+      });
+    } catch (err) {
+      this.catchFunction(err);
+    }
+  };
 
-        this.setState(function(prevState) {
-          const products = prevState.products;
-          products.splice(idx, 1);
-          return {
-            products
-          };
-        });
+  removeFromCart = async evt => {
+    const productId = evt.target.id;
+    const idx = evt.target.dataset.key;
 
-        console.debug(res.data, "Removed from cart");
-      })
-      .catch(this.catchFunction);
+    try {
+      const result = await axios.post(
+        `/api/user/${this.props.userId}/cart/remove`,
+        {
+          productId
+        }
+      );
+      this.props.openSnackbar(result.data.message);
+      this.setState(function(prevState) {
+        const products = prevState.products;
+        products.splice(idx, 1);
+        return {
+          products
+        };
+      });
+    } catch (err) {
+      this.catchFunction(err);
+    }
   };
 
   onInputChange = evt => {

@@ -29,7 +29,7 @@ export default class AuthProvider extends Component {
     this.setState({ message });
   };
 
-  signupHandler = evt => {
+  signupHandler = async evt => {
     evt.preventDefault();
 
     const {
@@ -40,19 +40,20 @@ export default class AuthProvider extends Component {
     } = this.state;
 
     if (passwordField === confirmPasswordField) {
-      axios
-        .post("/auth/signup", {
+      try {
+        const signupResult = await axios.post("/auth/signup", {
           accountAddress: accountAddressField,
           email: emailField,
           password: passwordField
-        })
-        .then(res => {
-          const { user, message } = res.data;
+        });
 
-          this.props.openSnackbar(message);
-          this.setState({ isLoggedIn: true, currentUserId: user._id });
-        })
-        .catch(this.catchFunction);
+        const { user, message } = signupResult.data;
+
+        this.props.openSnackbar(message);
+        this.setState({ isLoggedIn: true, currentUserId: user._id });
+      } catch (err) {
+        this.catchFunction(err);
+      }
     } else {
       this.props.openSnackbar("Passwords do not match. Please try again!");
       this.setState({
@@ -61,29 +62,29 @@ export default class AuthProvider extends Component {
     }
   };
 
-  loginHandler = evt => {
+  loginHandler = async evt => {
     evt.preventDefault();
 
     const { emailField, passwordField } = this.state;
 
-    axios
-      .post("/auth/login", {
+    try {
+      const loginResult = await axios.post("/auth/login", {
         email: emailField,
         password: passwordField
-      })
-      .then(res => {
-        const { user, message } = res.data;
-        this.props.openSnackbar(message);
-        if (user.isAdmin) {
-          this.setState({
-            isAdminLoggedIn: true,
-            currentUserId: user._id
-          });
-        } else {
-          this.setState({ isLoggedIn: true, currentUserId: user._id });
-        }
-      })
-      .catch(this.catchFunction);
+      });
+      const { user, message } = loginResult.data;
+      this.props.openSnackbar(message);
+      if (user.isAdmin) {
+        this.setState({
+          isAdminLoggedIn: true,
+          currentUserId: user._id
+        });
+      } else {
+        this.setState({ isLoggedIn: true, currentUserId: user._id });
+      }
+    } catch (err) {
+      this.catchFunction(err);
+    }
   };
 
   signoutHandler = () => {
