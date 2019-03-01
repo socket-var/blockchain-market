@@ -8,7 +8,8 @@ const userSchema = new mongoose.Schema({
   itemsForSale: Array,
   isAdmin: Boolean,
   purchases: [{ transactionId: String, productId: String, boughtFrom: String }],
-  sales: [{ transactionId: String, productId: String, soldTo: String }]
+  sales: [{ transactionId: String, productId: String, soldTo: String }],
+  accountBalance: { type: Number, default: 0 }
 });
 
 module.exports = mongoose.model("User", userSchema);
