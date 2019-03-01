@@ -4,86 +4,78 @@ const User = require("../models/auth");
 const bcrypt = require("bcryptjs");
 
 // called when signup post request is made
-function signupFunction(req, res, next) {
+async function signupFunction(req, res, next) {
   const { accountAddress, email, password } = req.body;
   // called when a new user needs to be created
-  function signupResolve() {
-    // generate password hash using bcrypt
-    bcrypt
-      .genSalt(14)
-      .then(bcrypt.hash.bind(null, password))
-      // save user details to the db
-      .then(function(hash) {
-        const newUser = new User({
-          bcAddress: accountAddress,
-          email,
-          password: hash,
-          isAdmin: false
-        });
-
-        newUser.save(function(err, savedUser) {
-          if (err) {
-            return res.status(401).json({ message: "Signup failed" });
-          }
-          res.status(200).json({ message: "Signup success!", user: savedUser });
-        });
-      })
-      .catch(function(err) {
-        res
-          .status(500)
-          .send({ message: "Login failed due to unknown reason. Try again." });
-      });
-  }
-
-  // execute only when doc.length != 0
-  function signupReject() {
-    Promise.reject("Account with this email already exists").catch(function(
-      err
-    ) {
-      res.status(401).send({ message: err });
-    });
-    return true;
-  }
 
   // check if the user exists
-  User.find({ email }).then(function(docs) {
-    // if user exists call reject else register the user
-    docs.length > 0 ? signupReject() : signupResolve();
-  });
+
+  let matchedDoc;
+  try {
+    matchedDoc = await User.findOne({ email });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Network error, try again" });
+  }
+
+  if (!matchedDoc) {
+    let hash;
+    try {
+      const salt = await bcrypt.genSalt(14);
+
+      hash = await bcrypt.hash(password, salt);
+    } catch (err) {
+      console.error(err);
+      return res
+        .status(500)
+        .send({ message: "Signup failed. Malformed password. Try again." });
+    }
+
+    const newUser = new User({
+      bcAddress: accountAddress,
+      email,
+      password: hash,
+      isAdmin: false
+    });
+
+    let savedUser;
+    try {
+      savedUser = await newUser.save();
+    } catch (err) {
+      console.error(err);
+      return res.status(401).json({ message: "Signup failed. Try again" });
+    }
+    res.status(200).json({ message: "Signup success!", user: savedUser });
+  } else {
+    res.status(401).send({ message: "Account with this email already exists" });
+  }
 }
 
 // called when login post request is made
-function loginFunction(req, res, next) {
+async function loginFunction(req, res, next) {
   const email = req.body.email;
   const password = req.body.password;
 
-  function signupResolve(password, doc) {
-    bcrypt
-      .compare(password, doc.password)
-      .then(function(result) {
-        if (result) {
-          return res.status(200).json({ message: "Login Success", user: doc });
-        }
-        res.status(401).json({ message: "Email or password is incorrect" });
-      })
-      .catch(function(err) {
-        res
-          .status(500)
-          .json({ message: "Signup failed due to unknown reason. Try again." });
-      });
+  let userDoc;
+  try {
+    userDoc = await User.findOne({ email });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send({ message: "Network error. Try again." });
   }
 
-  function signupReject() {
-    Promise.reject("Your account does not exist, please register").catch(
-      function(err) {
-        res.status(401).json({ message: err });
-      }
-    );
-  }
+  if (userDoc) {
+    const result = await bcrypt.compare(password, userDoc.password);
 
-  User.findOne({ email }).then(function(doc) {
-    !doc ? signupReject() : signupResolve(password, doc);
-  });
+    if (result) {
+      return res.status(200).json({ message: "Login Success", user: userDoc });
+    }
+    res.status(401).json({ message: "Email or password is incorrect" });
+  } else {
+    res
+      .status(401)
+      .json({ message: "Your account does not exist, please register" });
+  }
 }
 
 authRouter.route("/signup").post(signupFunction);

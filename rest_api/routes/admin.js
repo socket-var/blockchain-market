@@ -3,57 +3,64 @@ const adminRouter = express.Router();
 const Product = require("../models/Product");
 const User = require("../models/auth");
 
-function listAllUsers(req, res, next) {
+async function listAllUsers(req, res, next) {
   const userId = req.params.userId;
 
-  User.findOne({ _id: userId })
-    .then(user => {
-      if (user.isAdmin) {
-        return User.find({})
-          .where("_id")
-          .ne(userId);
-      } else {
-        return Promise.reject("Unauthorized operation.");
-      }
-    })
-    .then(
-      users => res.status(200).json({ users }),
-      reason => res.status(401).json({ message: reason })
-    )
-    .catch(err => {
+  let userObject;
+  try {
+    userObject = await User.findOne({ _id: userId });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Network error. Try again" });
+  }
+
+  if (userObject.isAdmin) {
+    try {
+      const listOfUsers = await User.find({})
+        .where("_id")
+        .ne(userId);
+      console.debug(listOfUsers);
+      res.status(200).json({ users: listOfUsers });
+    } catch (err) {
       console.error(err);
-      res.status(500).json({ message: "Server error" });
-    });
+      return res.status(500).json({ message: "Network error. Try again" });
+    }
+  } else {
+    res.status(401).json({ message: "Unauthorized operation." });
+  }
 }
 
-function deleteUser(req, res, next) {
+async function deleteUser(req, res, next) {
   const { userId, userIdToRemove } = req.params;
 
-  User.findOne({ _id: userId })
-    .then(user => {
-      if (user.isAdmin) {
-        return User.findByIdAndDelete(userIdToRemove);
+  let userObject;
+  try {
+    userObject = await User.findOne({ _id: userId });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Network error, try again" });
+  }
+
+  let deleteObject;
+  if (userObject.isAdmin) {
+    try {
+      deleteObject = await User.findByIdAndDelete(userIdToRemove);
+
+      if (deleteObject) {
+        console.debug("User deleted successfully");
+        res
+          .status(200)
+          .json({ user: deleteObject, message: "User deleted successfully" });
       } else {
-        return Promise.reject("Unauthorized operation.");
+        res.status(404).json({ message: "User to delete not found" });
       }
-    })
-    .then(
-      doc => {
-        if (doc) {
-          console.debug("User deleted successfully");
-          res
-            .status(200)
-            .json({ user: doc, message: "User deleted successfully" });
-        } else {
-          res.status(404).json({ message: "User to delete not found" });
-        }
-      },
-      reason => reason.status(401).json({ message: reason })
-    )
-    .catch(err => {
+    } catch (err) {
       console.error(err);
-      res.status(500).json({ message: "Internal Server Error" });
-    });
+      return res.status(500).json({ message: "Network error, try again" });
+    }
+  } else {
+    res.status(401).json({ message: "Unauthorized operation." });
+  }
 }
 
 // admin read
