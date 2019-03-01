@@ -5,18 +5,21 @@ const bcrypt = require("bcryptjs");
 
 // called when signup post request is made
 function signupFunction(req, res, next) {
-  const email = req.body.email;
-  const password = req.body.password;
-
+  const { accountAddress, email, password } = req.body;
   // called when a new user needs to be created
-  function signupResolve(email, password) {
+  function signupResolve() {
     // generate password hash using bcrypt
     bcrypt
       .genSalt(14)
       .then(bcrypt.hash.bind(null, password))
       // save user details to the db
       .then(function(hash) {
-        const newUser = new User({ email, password: hash, isAdmin: false });
+        const newUser = new User({
+          bcAddress: accountAddress,
+          email,
+          password: hash,
+          isAdmin: false
+        });
 
         newUser.save(function(err, savedUser) {
           if (err) {
@@ -45,7 +48,7 @@ function signupFunction(req, res, next) {
   // check if the user exists
   User.find({ email }).then(function(docs) {
     // if user exists call reject else register the user
-    docs.length > 0 ? signupReject() : signupResolve(email, password);
+    docs.length > 0 ? signupReject() : signupResolve();
   });
 }
 

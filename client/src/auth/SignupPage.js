@@ -67,6 +67,18 @@ const SignupPage = ({
           <div style={{ color: "red" }}>{errorMessage}</div>
           <form className={classes.form} onSubmit={onSubmit}>
             <FormControl margin="normal" required fullWidth>
+              <InputLabel htmlFor="accountAddressField">
+                Ethereum Account Address
+              </InputLabel>
+              <Input
+                id="accountAddressField"
+                name="accountAddress"
+                autoComplete="accountAddressField"
+                autoFocus
+                onChange={onInputChange}
+              />
+            </FormControl>
+            <FormControl margin="normal" required fullWidth>
               <InputLabel htmlFor="emailField">Email Address</InputLabel>
               <Input
                 id="emailField"

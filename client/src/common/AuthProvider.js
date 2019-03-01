@@ -17,6 +17,7 @@ export default class AuthProvider extends Component {
     emailField: "",
     passwordField: "",
     confirmPasswordField: "",
+    accountAddressField: "",
     message: ""
   };
 
@@ -31,11 +32,17 @@ export default class AuthProvider extends Component {
   signupHandler = evt => {
     evt.preventDefault();
 
-    const { emailField, passwordField, confirmPasswordField } = this.state;
+    const {
+      accountAddressField,
+      emailField,
+      passwordField,
+      confirmPasswordField
+    } = this.state;
 
     if (passwordField === confirmPasswordField) {
       axios
         .post("/auth/signup", {
+          accountAddress: accountAddressField,
           email: emailField,
           password: passwordField
         })
