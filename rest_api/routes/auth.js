@@ -79,9 +79,7 @@ function loginFunction(req, res, next) {
   }
 
   User.findOne({ email }).then(function(doc) {
-    Object.keys(doc).length == 0
-      ? signupReject()
-      : signupResolve(password, doc);
+    !doc ? signupReject() : signupResolve(password, doc);
   });
 }
 
