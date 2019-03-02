@@ -31,11 +31,11 @@ const AppRoutes = ({
         );
       } else {
         if (isLoggedIn) {
-          return <Redirect to={`/user/${userId}`} />;
+          return <Redirect to={`/user/`} />;
         }
 
         if (isAdminLoggedIn) {
-          return <Redirect to={`/user/admin/${userId}`} />;
+          return <Redirect to={`/user/admin/`} />;
         }
       }
     };
@@ -56,7 +56,7 @@ const AppRoutes = ({
       />
 
       <Route
-        path={`/user/admin/${userId}`}
+        path={`/user/admin/`}
         render={props =>
           isAdminLoggedIn ? (
             <AdminLandingPage
@@ -71,7 +71,7 @@ const AppRoutes = ({
       />
 
       <Route
-        path={`/user/${userId}`}
+        path={`/user/`}
         render={props =>
           isLoggedIn ? (
             <UserLandingPage

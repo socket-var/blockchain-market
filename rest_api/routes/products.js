@@ -8,11 +8,19 @@ const User = require("../models/auth");
 async function getAllProducts(req, res, next) {
   // check if the user exists
   try {
-    const products = await Product.find({}).sort({ _id: -1 });
-    if (products) {
-      res.status(200).json({ products });
+    const userId = req.params.userId;
+
+    const userObject = User.findOne({ _id: userId });
+
+    if (userObject) {
+      const products = await Product.find({}).sort({ _id: -1 });
+      if (products) {
+        return res.status(200).json({ products });
+      } else {
+        return res.status(404).json({ message: "No products yet to show" });
+      }
     } else {
-      res.status(404).json({ message: "No products yet to show" });
+      res.status(401).json({ message: "Unauthorized operation." });
     }
   } catch (err) {
     console.error(err);
@@ -85,17 +93,19 @@ async function addProductForSale(req, res, next) {
     numUnits
   });
   try {
-    const savedProduct = await newProduct.save();
-
     const userObject = await User.findOne({ _id: userId });
+    if (userObject) {
+      const savedProduct = await newProduct.save();
+      userObject.itemsForSale = userObject.itemsForSale || [];
+      userObject.itemsForSale.push(savedProduct._id);
 
-    userObject.itemsForSale = userObject.itemsForSale || [];
-    userObject.itemsForSale.push(savedProduct._id);
-
-    const savedUser = await userObject.save();
-    res
-      .status(200)
-      .json({ product: savedProduct, message: "Product successfully added" });
+      const savedUser = await userObject.save();
+      res
+        .status(200)
+        .json({ product: savedProduct, message: "Product successfully added" });
+    } else {
+      res.status(401).json({ message: "Not authorized." });
+    }
   } catch (err) {
     console.debug(err);
     res.status(500).json({ message: "Failed to save the product! Try again" });
@@ -103,7 +113,7 @@ async function addProductForSale(req, res, next) {
 }
 
 // Read
-productsRouter.route("/catalog").get(getAllProducts);
+productsRouter.route("/:userId/catalog").get(getAllProducts);
 // Read
 productsRouter.route("/by/:userId").get(getAllPostsByCurrentUser);
 // Create

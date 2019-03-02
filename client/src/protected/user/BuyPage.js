@@ -11,7 +11,9 @@ export default class BuyPage extends Component {
   };
 
   componentDidMount() {
-    this.props.getData("/api/products/catalog");
+    const { getData, userId } = this.props;
+
+    getData(`/api/products/${userId}/catalog`);
   }
 
   // advanced: we will use componentWillReceiveProps or CDU to fetch data if count locally and globally doesn't match

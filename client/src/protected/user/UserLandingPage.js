@@ -203,6 +203,7 @@ export default class UserLandingPage extends Component {
             accountType === "buyer" || accountType === "buyer_and_seller" ? (
               <BuyPage
                 {...props}
+                userId={userId}
                 products={products}
                 getData={this.getData}
                 addToCart={this.addToCart}
