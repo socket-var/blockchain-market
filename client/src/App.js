@@ -21,11 +21,13 @@ const App = () => {
                 <AuthConsumer>
                   {({
                     isLoggedIn,
+                    accountType,
                     currentUserId,
                     signupHandler,
                     loginHandler,
                     signoutHandler,
                     onInputChange,
+                    onCheckStateChange,
                     isAdminLoggedIn
                   }) => {
                     return (
@@ -35,15 +37,18 @@ const App = () => {
                           isAdminLoggedIn={isAdminLoggedIn}
                           signoutHandler={signoutHandler}
                           userId={currentUserId}
+                          accountType={accountType}
                         />
                         <AppRoutes
                           isLoggedIn={isLoggedIn}
                           isAdminLoggedIn={isAdminLoggedIn}
                           onInputChange={onInputChange}
+                          onCheckStateChange={onCheckStateChange}
                           signupHandler={signupHandler}
                           loginHandler={loginHandler}
                           userId={currentUserId}
                           openSnackbar={openSnackbar}
+                          accountType={accountType}
                         />
                       </div>
                     );

@@ -5,7 +5,7 @@ const bcrypt = require("bcryptjs");
 
 // called when signup post request is made
 async function signupFunction(req, res, next) {
-  const { accountAddress, email, password } = req.body;
+  const { accountAddress, email, password, accountType } = req.body;
   // called when a new user needs to be created
 
   // check if the user exists
@@ -35,7 +35,7 @@ async function signupFunction(req, res, next) {
       bcAddress: accountAddress,
       email,
       password: hash,
-      isAdmin: false
+      accountType
     });
 
     let savedUser;

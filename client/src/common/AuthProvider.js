@@ -10,16 +10,21 @@ export default class AuthProvider extends Component {
     openSnackbar: PropTypes.func.isRequired
   };
 
-  state = {
+  initialState = {
     isLoggedIn: false,
     isAdminLoggedIn: false,
+    accountType: null,
     currentUserId: null,
     emailField: "",
     passwordField: "",
     confirmPasswordField: "",
     accountAddressField: "",
-    message: ""
+    message: "",
+    sellerCheckbox: false,
+    buyerCheckbox: false
   };
+
+  state = Object.assign({}, this.initialState);
 
   catchFunction = err => {
     let message = ajaxErrorHandler(err);
@@ -36,21 +41,41 @@ export default class AuthProvider extends Component {
       accountAddressField,
       emailField,
       passwordField,
-      confirmPasswordField
+      confirmPasswordField,
+      sellerCheckbox,
+      buyerCheckbox
     } = this.state;
 
     if (passwordField === confirmPasswordField) {
       try {
+        let accountType;
+        if (sellerCheckbox && buyerCheckbox) {
+          accountType = "buyer_and_seller";
+        } else if (sellerCheckbox) {
+          accountType = "seller";
+        } else if (buyerCheckbox) {
+          accountType = "buyer";
+        } else {
+          return this.props.openSnackbar(
+            "Should select atleast one of buyer and seller!!"
+          );
+        }
+
         const signupResult = await axios.post("/auth/signup", {
           accountAddress: accountAddressField,
           email: emailField,
-          password: passwordField
+          password: passwordField,
+          accountType
         });
 
         const { user, message } = signupResult.data;
 
         this.props.openSnackbar(message);
-        this.setState({ isLoggedIn: true, currentUserId: user._id });
+        this.setState({
+          isLoggedIn: true,
+          accountType,
+          currentUserId: user._id
+        });
       } catch (err) {
         this.catchFunction(err);
       }
@@ -74,13 +99,18 @@ export default class AuthProvider extends Component {
       });
       const { user, message } = loginResult.data;
       this.props.openSnackbar(message);
-      if (user.isAdmin) {
+      if (user.accountType === "admin") {
         this.setState({
           isAdminLoggedIn: true,
-          currentUserId: user._id
+          currentUserId: user._id,
+          accountType: user.accountType
         });
       } else {
-        this.setState({ isLoggedIn: true, currentUserId: user._id });
+        this.setState({
+          isLoggedIn: true,
+          accountType: user.accountType,
+          currentUserId: user._id
+        });
       }
     } catch (err) {
       this.catchFunction(err);
@@ -103,18 +133,47 @@ export default class AuthProvider extends Component {
     });
   };
 
+  onCheckStateChange = evt => {
+    console.debug(evt.target.id);
+    this.setState({
+      [evt.target.id]: evt.target.checked
+    });
+  };
+
+  componentDidUpdate = (prevProps, prevState) => {
+    // to make sure this block runs only when there is a change in state
+    if (
+      prevState.isLoggedIn !== this.state.isLoggedIn ||
+      prevState.isAdminLoggedIn !== this.state.isAdminLoggedIn
+    ) {
+      // if loggedout reset state to initial
+      if (!this.state.isLoggedIn && !this.state.isAdminLoggedIn) {
+        this.setState(() => {
+          return Object.assign({}, this.initialState);
+        });
+      }
+    }
+  };
+
   render() {
-    const { isLoggedIn, currentUserId, isAdminLoggedIn } = this.state;
+    const {
+      isLoggedIn,
+      currentUserId,
+      isAdminLoggedIn,
+      accountType
+    } = this.state;
     return (
       <AuthContext.Provider
         value={{
           isLoggedIn,
           isAdminLoggedIn,
+          accountType,
           currentUserId,
           signupHandler: this.signupHandler,
           loginHandler: this.loginHandler,
           signoutHandler: this.signoutHandler,
-          onInputChange: this.onInputChange
+          onInputChange: this.onInputChange,
+          onCheckStateChange: this.onCheckStateChange
         }}
       >
         {this.props.children}

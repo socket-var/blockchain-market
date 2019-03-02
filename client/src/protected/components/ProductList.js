@@ -30,6 +30,7 @@ const ProductList = props => {
       const productId = item._id;
       const productName = item.product_name;
       const retailPrice = item.retail_price;
+      const numUnits = item.numUnits;
       cards.push(
         <ProductCard
           key={idx}
@@ -38,6 +39,7 @@ const ProductList = props => {
           imageUrl={imageUrl}
           productName={productName}
           retailPrice={retailPrice}
+          numUnits={numUnits}
           addToCart={addToCart || null}
           buyProduct={buyProduct || null}
           removeFromCart={removeFromCart || null}

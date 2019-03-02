@@ -12,6 +12,8 @@ import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
 import withStyles from "@material-ui/core/styles/withStyles";
+import FormLabel from "@material-ui/core/FormLabel";
+import FormGroup from "@material-ui/core/FormGroup";
 
 const styles = theme => ({
   main: {
@@ -48,9 +50,9 @@ const styles = theme => ({
 
 const SignupPage = ({
   classes,
-  isLoggedIn,
   errorMessage,
   onInputChange,
+  onCheckStateChange,
   onSubmit
 }) => {
   return (
@@ -112,10 +114,38 @@ const SignupPage = ({
               />
             </FormControl>
 
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            />
+            <FormControl
+              required
+              component="fieldset"
+              className={classes.formControl}
+            >
+              <FormLabel component="legend">
+                <b>Signup as</b>
+              </FormLabel>
+              <FormGroup>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      value="buyer"
+                      onChange={onCheckStateChange}
+                      id="buyerCheckbox"
+                    />
+                  }
+                  label="Buyer"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      value="seller"
+                      onChange={onCheckStateChange}
+                      id="sellerCheckbox"
+                    />
+                  }
+                  label="Seller"
+                />
+              </FormGroup>
+            </FormControl>
+
             <div>
               <a href="/auth/login">Already Registered? Login</a>
             </div>

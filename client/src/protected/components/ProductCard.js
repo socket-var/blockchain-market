@@ -35,6 +35,7 @@ class ProductCard extends React.Component {
       buttonId,
       productName,
       retailPrice,
+      numUnits,
       imageUrl,
       addToCart,
       buyProduct,
@@ -122,6 +123,7 @@ class ProductCard extends React.Component {
             </b>
           </Typography>
           <Typography component="p">Retail Price: {retailPrice}</Typography>
+          <Typography component="p">Available Units: {numUnits}</Typography>
           {AddToCartButton}
           {BuyButton}
           {RemoveButton}

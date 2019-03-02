@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { Route, Switch } from "react-router-dom";
+import { Route, Switch, Redirect } from "react-router-dom";
 import axios from "axios";
 import ajaxErrorHandler from "../../common/functions/ajaxErrorHandler";
 // user routes
@@ -160,53 +160,95 @@ export default class UserLandingPage extends Component {
   };
 
   render() {
-    const { match, userId } = this.props;
-
+    const { match, userId, accountType } = this.props;
     const { products } = this.state;
 
     return (
       <Switch>
         <Route
-          path={[`${match.path}`, `${match.path}/buy`]}
+          path={`${match.path}`}
           exact
-          render={props => (
-            <BuyPage
-              {...props}
-              products={products}
-              getData={this.getData}
-              addToCart={this.addToCart}
-              buyProduct={this.buyProduct}
-            />
-          )}
+          render={props => {
+            if (accountType === "buyer" || accountType === "buyer_and_seller") {
+              return (
+                <BuyPage
+                  {...props}
+                  products={products}
+                  getData={this.getData}
+                  addToCart={this.addToCart}
+                  buyProduct={this.buyProduct}
+                />
+              );
+            } else if (accountType === "seller") {
+              return (
+                <SellPage
+                  {...props}
+                  userId={userId}
+                  products={products}
+                  getData={this.getData}
+                  onInputChange={this.onInputChange}
+                  addProductForSale={this.addProductForSale}
+                  removeProductFromSale={this.removeProductFromSale}
+                />
+              );
+            } else {
+              return <Redirect to="/" />;
+            }
+          }}
+        />
+        <Route
+          path={`${match.path}/buy`}
+          exact
+          render={props =>
+            accountType === "buyer" || accountType === "buyer_and_seller" ? (
+              <BuyPage
+                {...props}
+                products={products}
+                getData={this.getData}
+                addToCart={this.addToCart}
+                buyProduct={this.buyProduct}
+              />
+            ) : (
+              <Redirect to={`${match.path}/`} />
+            )
+          }
         />
         <Route
           path={`${match.path}/sell`}
           exact
-          render={props => (
-            <SellPage
-              {...props}
-              userId={userId}
-              products={products}
-              getData={this.getData}
-              onInputChange={this.onInputChange}
-              addProductForSale={this.addProductForSale}
-              removeProductFromSale={this.removeProductFromSale}
-            />
-          )}
+          render={props =>
+            accountType === "seller" || accountType === "buyer_and_seller" ? (
+              <SellPage
+                {...props}
+                userId={userId}
+                products={products}
+                getData={this.getData}
+                onInputChange={this.onInputChange}
+                addProductForSale={this.addProductForSale}
+                removeProductFromSale={this.removeProductFromSale}
+              />
+            ) : (
+              <Redirect to={`${match.path}/`} />
+            )
+          }
         />
         <Route
           path={`${match.path}/cart`}
           exact
-          render={props => (
-            <CartPage
-              {...props}
-              userId={userId}
-              products={products}
-              getData={this.getData}
-              buyProduct={this.buyProduct}
-              removeFromCart={this.removeFromCart}
-            />
-          )}
+          render={props =>
+            accountType === "buyer" || accountType === "buyer_and_seller" ? (
+              <CartPage
+                {...props}
+                userId={userId}
+                products={products}
+                getData={this.getData}
+                buyProduct={this.buyProduct}
+                removeFromCart={this.removeFromCart}
+              />
+            ) : (
+              <Redirect to={`${match.path}/`} />
+            )
+          }
         />
       </Switch>
     );

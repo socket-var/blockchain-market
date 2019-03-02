@@ -45,7 +45,8 @@ class AppNavBar extends React.Component {
       isLoggedIn,
       isAdminLoggedIn,
       signoutHandler,
-      userId
+      userId,
+      accountType
     } = this.props;
     const { value } = this.state;
 
@@ -74,21 +75,30 @@ class AppNavBar extends React.Component {
                   onChange={this.handleChange}
                   className={classes.growChild}
                 >
-                  <Tab
-                    label="Buy"
-                    to={`/user/${userId}/buy`}
-                    component={Link}
-                  />
-                  <Tab
-                    label="Sell"
-                    to={`/user/${userId}/sell`}
-                    component={Link}
-                  />
-                  <Tab
-                    label="Cart"
-                    to={`/user/${userId}/cart`}
-                    component={Link}
-                  />
+                  {(accountType === "buyer" ||
+                    accountType === "buyer_and_seller") && (
+                    <Tab
+                      label="Buy"
+                      to={`/user/${userId}/buy`}
+                      component={Link}
+                    />
+                  )}
+                  {(accountType === "seller" ||
+                    accountType === "buyer_and_seller") && (
+                    <Tab
+                      label="Sell"
+                      to={`/user/${userId}/sell`}
+                      component={Link}
+                    />
+                  )}
+                  {(accountType === "buyer" ||
+                    accountType === "buyer_and_seller") && (
+                    <Tab
+                      label="Cart"
+                      to={`/user/${userId}/cart`}
+                      component={Link}
+                    />
+                  )}
                 </Tabs>
               </React.Fragment>
             )}

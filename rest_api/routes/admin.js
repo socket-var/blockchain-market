@@ -14,7 +14,7 @@ async function listAllUsers(req, res, next) {
     return res.status(500).json({ message: "Network error. Try again" });
   }
 
-  if (userObject.isAdmin) {
+  if (userObject.accountType === "admin") {
     try {
       const listOfUsers = await User.find({})
         .where("_id")
@@ -42,7 +42,7 @@ async function deleteUser(req, res, next) {
   }
 
   let deleteObject;
-  if (userObject.isAdmin) {
+  if (userObject.accountType === "admin") {
     try {
       deleteObject = await User.findByIdAndDelete(userIdToRemove);
 

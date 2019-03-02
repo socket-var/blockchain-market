@@ -12,9 +12,11 @@ const AppRoutes = ({
   signupHandler,
   loginHandler,
   onInputChange,
+  onCheckStateChange,
   userId,
   openSnackbar,
-  isAdminLoggedIn
+  isAdminLoggedIn,
+  accountType
 }) => {
   function renderAuthPage(AuthPage, authHandler) {
     return function(props) {
@@ -24,7 +26,7 @@ const AppRoutes = ({
             {...props}
             onSubmit={authHandler}
             onInputChange={onInputChange}
-            // errorMessage={signupPageErrorMessage}
+            onCheckStateChange={onCheckStateChange}
           />
         );
       } else {
@@ -76,6 +78,7 @@ const AppRoutes = ({
               userId={userId}
               openSnackbar={openSnackbar}
               {...props}
+              accountType={accountType}
             />
           ) : (
             <Redirect to="/login" />
