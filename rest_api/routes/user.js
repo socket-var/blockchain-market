@@ -4,6 +4,7 @@ const Product = require("../models/Product");
 const User = require("../models/auth");
 
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 
 async function getCart(req, res, next) {
   const userId = req.params.userId;
@@ -97,6 +98,43 @@ async function getPurchases(req, res, next) {
   }
 }
 
+// this request should only come from admin or the same user
+async function addDeposit(req, res, next) {
+  const { password, requestedBy } = req.body;
+  const rechargeAmount = parseInt(req.body.rechargeAmount);
+
+  try {
+    const userObject = await User.findOne({ _id: req.params.userId });
+    const requestorObject = await User.findOne({ _id: requestedBy });
+    if (userObject) {
+      if (requestorObject && requestorObject.accountType === "admin") {
+        userObject.accountBalance += rechargeAmount;
+      } else {
+        const result = await bcrypt.compare(password, userObject.password);
+        if (result) {
+          // all good recharge wallet
+          userObject.accountBalance += rechargeAmount;
+        } else {
+          return res
+            .status(401)
+            .json({ message: "Your credentials are incorrect. Try again." });
+        }
+      }
+      await userObject.save();
+
+      res.status(200).json({
+        accountBalance: userObject.accountBalance,
+        message: "Amount added to the wallet!!"
+      });
+    } else {
+      res.status(401).json({ message: "Unauthorized request!!" });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Network error!! Try again." });
+  }
+}
+
 // this is gonna be huge
 // this later would handle transaction between buyer and seller, for now it just decrements counter
 async function buyProduct(req, res, next) {
@@ -166,6 +204,9 @@ regUserRouter.get("/:userId/cart", getCart);
 
 // user purchases
 regUserRouter.get("/:userId/purchases", getPurchases);
+
+// recharge wallet
+regUserRouter.post("/:userId/add_deposit", addDeposit);
 
 // user cart create
 regUserRouter.post("/:userId/cart/add", changeCart("add"));

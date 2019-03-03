@@ -22,6 +22,7 @@ const App = () => {
                   {({
                     isLoggedIn,
                     accountType,
+                    accountBalance,
                     currentUserId,
                     signupHandler,
                     loginHandler,
@@ -41,6 +42,7 @@ const App = () => {
                         />
                         <AppRoutes
                           isLoggedIn={isLoggedIn}
+                          accountBalance={accountBalance}
                           isAdminLoggedIn={isAdminLoggedIn}
                           onInputChange={onInputChange}
                           onCheckStateChange={onCheckStateChange}

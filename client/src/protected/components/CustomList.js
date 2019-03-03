@@ -8,6 +8,14 @@ import ListItemText from "@material-ui/core/ListItemText";
 import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
 import DeleteIcon from "@material-ui/icons/Delete";
+import Button from "@material-ui/core/Button";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import TextField from "@material-ui/core/TextField";
+import AddDepositForm from "./AddDepositForm";
 
 const styles = theme => ({
   root: {
@@ -24,36 +32,71 @@ const styles = theme => ({
 
 class CustomList extends React.Component {
   render() {
-    const { classes, data, onClickFunction, placeholder } = this.props;
+    const {
+      classes,
+      data,
+      removeUser,
+      placeholder,
+      openDepositModal,
+      closeDepositModal,
+      accountBalance,
+      isModalOpen,
+      onInputChange,
+      addDeposit,
+      userId
+    } = this.props;
 
-    const listItem = [];
-
-    data.forEach((item, idx) => {
-      listItem.push(
-        <ListItem key={item._id}>
-          <ListItemText primary={item.email} />
-          <ListItemSecondaryAction>
-            <IconButton
-              aria-label="Delete"
-              onClick={onClickFunction}
-              id={item._id}
-              data-key={idx}
-            >
-              <DeleteIcon />
-            </IconButton>
-          </ListItemSecondaryAction>
-        </ListItem>
-      );
-    });
+    const listItems = data.map((item, idx) => (
+      <ListItem key={item._id}>
+        {/* should use account address later */}
+        <ListItemText
+          primary={`${item.email} - Account balance: ${item.accountBalance}`}
+        />
+        <ListItemSecondaryAction>
+          <IconButton
+            aria-label="Delete"
+            onClick={removeUser}
+            id={item._id}
+            data-key={idx}
+          >
+            <DeleteIcon />
+          </IconButton>
+          <Button color="primary" onClick={openDepositModal(item)}>
+            Add deposit
+          </Button>
+        </ListItemSecondaryAction>
+      </ListItem>
+    ));
 
     return (
       <div className={classes.root}>
         <Typography variant="h6" className={classes.title}>
           Registered Users:
         </Typography>
+        <Dialog
+          open={isModalOpen}
+          onClose={closeDepositModal}
+          aria-labelledby="form-dialog-title"
+        >
+          <DialogTitle id="form-dialog-title">Add deposit</DialogTitle>
+          <DialogContent>
+            <AddDepositForm
+              accountBalance={accountBalance}
+              onInputChange={onInputChange}
+              onSubmit={addDeposit}
+              displayPasswordField={false}
+              userId={userId}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={closeDepositModal} color="primary">
+              Cancel
+            </Button>
+          </DialogActions>
+        </Dialog>
         <div className={classes.demo}>
-          {listItem.length > 0 ? (
-            <List>{listItem}</List>
+          {listItems.length > 0 ? (
+            <List>{listItems}</List>
           ) : (
             <div>{placeholder || "No entries to display here"} </div>
           )}
@@ -66,8 +109,15 @@ class CustomList extends React.Component {
 CustomList.propTypes = {
   classes: PropTypes.object.isRequired,
   data: PropTypes.array,
-  onClickFunction: PropTypes.func,
-  placeholder: PropTypes.string
+  removeUser: PropTypes.func.isRequired,
+  placeholder: PropTypes.string,
+  openDepositModal: PropTypes.func.isRequired,
+  closeDepositModal: PropTypes.func.isRequired,
+  accountBalance: PropTypes.number.isRequired,
+  isModalOpen: PropTypes.bool.isRequired,
+  onInputChange: PropTypes.func.isRequired,
+  addDeposit: PropTypes.func.isRequired,
+  userId: PropTypes.string.isRequired
 };
 
 export default withStyles(styles)(CustomList);

@@ -11,7 +11,54 @@ export default class AdminLandingPage extends Component {
     openSnackbar: PropTypes.func.isRequired
   };
 
-  state = { users: [] };
+  state = {
+    users: [],
+    isModalOpen: false,
+    accountBalance: null,
+    passwordField: null,
+    rechargeAmountField: null
+  };
+
+  openDepositModal = listItem => () => {
+    this.setState({
+      isModalOpen: true,
+      accountBalance: listItem.accountBalance,
+      selectedUser: listItem._id
+    });
+  };
+
+  closeDepositModal = () => {
+    this.setState({ isModalOpen: false });
+  };
+
+  onInputChange = evt => {
+    this.setState({
+      [evt.target.id]: evt.target.value
+    });
+  };
+
+  addDeposit = async evt => {
+    evt.preventDefault();
+
+    const { passwordField, rechargeAmountField } = this.state;
+    try {
+      const result = await axios.post(
+        `/api/user/${this.state.selectedUser}/add_deposit`,
+        {
+          password: passwordField,
+          rechargeAmount: rechargeAmountField,
+          requestedBy: this.props.userId
+        }
+      );
+
+      this.setState({
+        accountBalance: result.data.accountBalance
+      });
+      this.props.openSnackbar(result.data.message);
+    } catch (err) {
+      this.catchFunction(err);
+    }
+  };
 
   catchFunction = err => {
     let message = ajaxErrorHandler(err);
@@ -47,6 +94,7 @@ export default class AdminLandingPage extends Component {
   listAllUsers = async apiUrl => {
     try {
       const listOfUsers = await axios.get(apiUrl);
+
       this.setState({ users: listOfUsers.data.users });
     } catch (err) {
       this.catchFunction(err);
@@ -58,12 +106,20 @@ export default class AdminLandingPage extends Component {
   }
 
   render() {
+    const { isModalOpen, accountBalance, users, selectedUser } = this.state;
     return (
       <div>
         <CustomList
-          data={this.state.users}
-          onClickFunction={this.removeUser}
+          data={users}
+          removeUser={this.removeUser}
+          isModalOpen={isModalOpen}
           placeholder={"No registered users yet"}
+          openDepositModal={this.openDepositModal}
+          closeDepositModal={this.closeDepositModal}
+          accountBalance={accountBalance}
+          onInputChange={this.onInputChange}
+          addDeposit={this.addDeposit}
+          userId={selectedUser}
         />
       </div>
     );

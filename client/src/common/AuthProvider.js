@@ -21,7 +21,8 @@ export default class AuthProvider extends Component {
     accountAddressField: "",
     message: "",
     sellerCheckbox: false,
-    buyerCheckbox: false
+    buyerCheckbox: false,
+    accountBalance: null
   };
 
   state = Object.assign({}, this.initialState);
@@ -73,8 +74,9 @@ export default class AuthProvider extends Component {
         this.props.openSnackbar(message);
         this.setState({
           isLoggedIn: true,
-          accountType,
-          currentUserId: user._id
+          accountType: user.accountType,
+          currentUserId: user._id,
+          accountBalance: user.accountBalance
         });
       } catch (err) {
         this.catchFunction(err);
@@ -103,13 +105,15 @@ export default class AuthProvider extends Component {
         this.setState({
           isAdminLoggedIn: true,
           currentUserId: user._id,
-          accountType: user.accountType
+          accountType: user.accountType,
+          accountBalance: user.accountBalance
         });
       } else {
         this.setState({
           isLoggedIn: true,
           accountType: user.accountType,
-          currentUserId: user._id
+          currentUserId: user._id,
+          accountBalance: user.accountBalance
         });
       }
     } catch (err) {
@@ -160,7 +164,8 @@ export default class AuthProvider extends Component {
       isLoggedIn,
       currentUserId,
       isAdminLoggedIn,
-      accountType
+      accountType,
+      accountBalance
     } = this.state;
     return (
       <AuthContext.Provider
@@ -168,6 +173,7 @@ export default class AuthProvider extends Component {
           isLoggedIn,
           isAdminLoggedIn,
           accountType,
+          accountBalance,
           currentUserId,
           signupHandler: this.signupHandler,
           loginHandler: this.loginHandler,

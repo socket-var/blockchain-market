@@ -16,7 +16,8 @@ const AppRoutes = ({
   userId,
   openSnackbar,
   isAdminLoggedIn,
-  accountType
+  accountType,
+  accountBalance
 }) => {
   function renderAuthPage(AuthPage, authHandler) {
     return function(props) {
@@ -35,7 +36,7 @@ const AppRoutes = ({
         }
 
         if (isAdminLoggedIn) {
-          return <Redirect to="/user/admin/" />;
+          return <Redirect to="/admin" />;
         }
       }
     };
@@ -55,19 +56,9 @@ const AppRoutes = ({
         render={renderAuthPage(LoginPage, loginHandler)}
       />
 
-      {/* <Route 
-        path={"/user/add_deposit"}
-        render={props =>
-          isLoggedIn ? (
-            <Add
-          ): (
-              <Redirect to="/login" />
-          )
-}
-  /> */}
-
       <Route
-        path="/user/admin/"
+        path="/admin"
+        exact
         render={props =>
           isAdminLoggedIn ? (
             <AdminLandingPage
@@ -90,6 +81,7 @@ const AppRoutes = ({
               openSnackbar={openSnackbar}
               {...props}
               accountType={accountType}
+              accountBalance={accountBalance}
             />
           ) : (
             <Redirect to="/login" />

@@ -9,6 +9,7 @@ import SellPage from "./SellPage";
 import CartPage from "./CartPage";
 import BuyPage from "./BuyPage";
 import PurchasePage from "./PurchasePage";
+import AddDepositForm from "../components/AddDepositForm";
 
 export default class UserLandingPage extends Component {
   static propTypes = {
@@ -20,7 +21,10 @@ export default class UserLandingPage extends Component {
     products: [],
     productNameField: "",
     retailPriceField: "",
-    numUnitsField: ""
+    numUnitsField: "",
+    rechargeAmountField: "",
+    accountBalance: null,
+    passwordField: ""
   };
 
   catchFunction = err => {
@@ -160,8 +164,37 @@ export default class UserLandingPage extends Component {
     });
   };
 
+  addDeposit = async evt => {
+    evt.preventDefault();
+
+    const { passwordField, rechargeAmountField } = this.state;
+    try {
+      const result = await axios.post(
+        `/api/user/${this.props.userId}/add_deposit`,
+        {
+          password: passwordField,
+          rechargeAmount: rechargeAmountField
+        }
+      );
+      this.setState({
+        accountBalance: result.data.accountBalance
+      });
+      this.props.openSnackbar(result.data.message);
+    } catch (err) {
+      this.catchFunction(err);
+    }
+  };
+
+  componentDidMount() {
+    this.setState({
+      accountBalance: this.props.accountBalance
+    });
+  }
+
   render() {
     const { match, userId, accountType } = this.props;
+    const { accountBalance } = this.state;
+
     const { products } = this.state;
 
     return (
@@ -234,6 +267,19 @@ export default class UserLandingPage extends Component {
               <Redirect to={`${match.path}/`} />
             )
           }
+        />
+
+        <Route
+          path={`${match.path}/add_deposit`}
+          render={props => (
+            <AddDepositForm
+              userId={userId}
+              onSubmit={this.addDeposit}
+              accountBalance={accountBalance}
+              onInputChange={this.onInputChange}
+              displayPasswordField={true}
+            />
+          )}
         />
 
         <Route

@@ -19,7 +19,6 @@ async function listAllUsers(req, res, next) {
       const listOfUsers = await User.find({})
         .where("_id")
         .ne(userId);
-      console.debug(listOfUsers);
       res.status(200).json({ users: listOfUsers });
     } catch (err) {
       console.error(err);
