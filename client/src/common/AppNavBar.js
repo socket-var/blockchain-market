@@ -9,6 +9,7 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Button from "@material-ui/core/Button";
 
 import { Link } from "react-router-dom";
+import AccountSidebar from "./AccountSidebar";
 
 const styles = theme => ({
   root: {
@@ -32,11 +33,18 @@ const styles = theme => ({
 
 class AppNavBar extends React.Component {
   state = {
-    value: 0
+    value: 0,
+    openRight: false
   };
 
   handleChange = (event, value) => {
     this.setState({ value });
+  };
+
+  toggleDrawer = open => () => {
+    this.setState({
+      openRight: open
+    });
   };
 
   render() {
@@ -48,7 +56,7 @@ class AppNavBar extends React.Component {
       // userId,
       accountType
     } = this.props;
-    const { value } = this.state;
+    const { value, openRight } = this.state;
 
     return (
       <div className={classes.root}>
@@ -77,15 +85,15 @@ class AppNavBar extends React.Component {
                 >
                   {(accountType === "buyer" ||
                     accountType === "buyer_and_seller") && (
-                    <Tab label="Buy" to={`/user/buy`} component={Link} />
+                    <Tab label="Buy" to="/user/buy" component={Link} />
                   )}
                   {(accountType === "seller" ||
                     accountType === "buyer_and_seller") && (
-                    <Tab label="Sell" to={`/user/sell`} component={Link} />
+                    <Tab label="Sell" to="/user/sell" component={Link} />
                   )}
                   {(accountType === "buyer" ||
                     accountType === "buyer_and_seller") && (
-                    <Tab label="Cart" to={`/user/cart`} component={Link} />
+                    <Tab label="Cart" to="/user/cart" component={Link} />
                   )}
                 </Tabs>
               </React.Fragment>
@@ -110,6 +118,24 @@ class AppNavBar extends React.Component {
                   Login
                 </Button>
               </div>
+            )}
+
+            {isLoggedIn && (
+              <React.Fragment>
+                <Button
+                  color="inherit"
+                  className={classes.defaultChild}
+                  // to="/auth/login"
+                  // component={Link}
+                  onClick={this.toggleDrawer(true)}
+                >
+                  Your Account
+                </Button>
+                <AccountSidebar
+                  openRight={openRight}
+                  toggleDrawer={this.toggleDrawer}
+                />
+              </React.Fragment>
             )}
 
             {(isAdminLoggedIn || isLoggedIn) && (

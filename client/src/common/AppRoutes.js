@@ -31,11 +31,11 @@ const AppRoutes = ({
         );
       } else {
         if (isLoggedIn) {
-          return <Redirect to={`/user/`} />;
+          return <Redirect to="/user" />;
         }
 
         if (isAdminLoggedIn) {
-          return <Redirect to={`/user/admin/`} />;
+          return <Redirect to="/user/admin/" />;
         }
       }
     };
@@ -55,8 +55,19 @@ const AppRoutes = ({
         render={renderAuthPage(LoginPage, loginHandler)}
       />
 
+      {/* <Route 
+        path={"/user/add_deposit"}
+        render={props =>
+          isLoggedIn ? (
+            <Add
+          ): (
+              <Redirect to="/login" />
+          )
+}
+  /> */}
+
       <Route
-        path={`/user/admin/`}
+        path="/user/admin/"
         render={props =>
           isAdminLoggedIn ? (
             <AdminLandingPage
@@ -71,7 +82,7 @@ const AppRoutes = ({
       />
 
       <Route
-        path={`/user/`}
+        path="/user"
         render={props =>
           isLoggedIn ? (
             <UserLandingPage
