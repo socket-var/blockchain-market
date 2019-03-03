@@ -165,8 +165,7 @@ export default class UserLandingPage extends Component {
     const { products } = this.state;
 
     return (
-      // <Switch>
-      <React.Fragment>
+      <Switch>
         <Route
           path={`${match.path}/buy`}
           render={props =>
@@ -269,7 +268,7 @@ export default class UserLandingPage extends Component {
             }
           }}
         />
-      </React.Fragment>
+      </Switch>
     );
   }
 }
