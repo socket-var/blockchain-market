@@ -32,8 +32,16 @@ contract Market {
 
     modifier onlyBuyer() {
         bytes memory buyer = bytes("buyer");
+        bytes memory buyerAndSeller = bytes("buyer_and_seller");
         bytes memory userType = bytes(users[msg.sender].userType);
-        require(keccak256(userType) == keccak256(buyer), "Only buyer can call this");
+        require(keccak256(userType) == keccak256(buyer) || keccak256(userType) == keccak256(buyerAndSeller), "Only buyer or buyer_and_seller can call this");
+        _;
+    }
+
+    modifier onlyBuyerAndSeller() {
+        bytes memory buyer = bytes("buyer_and_seller");
+        bytes memory userType = bytes(users[msg.sender].userType);
+        require(keccak256(userType) == keccak256(buyer), "Only buyer_and_seller userType can call this");
         _;
     }
 
@@ -71,6 +79,7 @@ contract Market {
     }
 
     function balanceOf(address userAddress) public view onlyChairpersonOrSelf(userAddress) returns(uint) {
+        require(users[userAddress].isRegistered == true, "User address not found");
         return users[userAddress].balance;
     }
 
@@ -82,9 +91,16 @@ contract Market {
 
     /* Register and unregister users */
     function addDeposit(address userAddress, uint amount) public onlyChairpersonOrSelf(userAddress) {
-        require(totalTokensInNetwork - amount >= 0, "Insufficient tokens. Need to generate more for registering new users");
-        tokensRemaining -= amount;
-        users[userAddress].balance = amount; 
+
+        // if chairperson is adding deposit transfer tokens
+        if (msg.sender == chairperson) {
+            require(tokensRemaining >= amount, "Not enough tokens in the network to deposit as a chairperson");
+            tokensRemaining -= amount;
+        } else { // if user is adding tokens increase network token count and assign amount to user
+            totalTokensInNetwork += amount;
+        }
+        
+        users[userAddress].balance += amount; 
     }
 
     function register(address newUser, string memory userType, uint amount) public onlyChairperson {
@@ -100,16 +116,19 @@ contract Market {
         emit UserRegistered(newUser);
     }
     
-    function revokeTokens(address userAddress) internal {
+    // when user unregisters this is called which removes all the user's tokens (assuming the user's balance is claimed using a payment gateway) esentially user buysout when unregistered
+    function burnTokensOf(address userAddress) internal {
         if (users[userAddress].balance > 0) {
-            tokensRemaining += users[userAddress].balance;
+            tokensRemaining -= users[userAddress].balance;
+            totalTokensInNetwork -= users[userAddress].balance;
             delete users[userAddress].balance;
         }
     }
-
+    
     function unregister(address userAddress) public onlyChairperson {
         require(users[userAddress].isRegistered == true, "Error: User to unregister not found");
-        revokeTokens(userAddress);
+        require(userAddress != msg.sender, "Cannot unregister yourself");
+        burnTokensOf(userAddress);
         delete users[userAddress];
         
         emit UserUnregistered(userAddress);
