@@ -1,3 +1,4 @@
+// TODO: show user name on thenavbar
 import React from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
@@ -53,7 +54,7 @@ class AppNavBar extends React.Component {
       isLoggedIn,
       isAdminLoggedIn,
       signoutHandler,
-      // userId,
+      openAddTokensModal,
       accountType
     } = this.props;
     const { value, openRight } = this.state;
@@ -157,7 +158,8 @@ class AppNavBar extends React.Component {
 AppNavBar.propTypes = {
   classes: PropTypes.object.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
-  signoutHandler: PropTypes.func.isRequired
+  signoutHandler: PropTypes.func.isRequired,
+  openAddTokensModal: PropTypes.func.isRequired
 };
 
 export default withStyles(styles)(AppNavBar);

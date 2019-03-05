@@ -82,8 +82,102 @@ module.exports = function(contract) {
     }
   }
 
+  async function addTokens(req, res, next) {
+    const { rechargeAmount } = req.body;
+    const { userId } = req.params;
+
+    let userObject;
+    try {
+      userObject = await User.findOne({ _id: userId });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ message: "Network error, try again" });
+    }
+
+    if (userObject.accountType == "admin") {
+      try {
+        const result = await contract.methods
+          .addTokens(rechargeAmount)
+          .send({ from: userObject.bcAddress, gas: 200000 });
+
+        const stats = await __getTokenStats(userObject);
+
+        if (!stats) { throw "Error in calling contract functions"; }
+
+        const { totalTokens, tokensRemaining } = stats;
+
+        return res
+          .status(200)
+          .json({
+            totalTokens,
+            tokensRemaining,
+            message: "Successfully added tokens to the network"
+          });
+      } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Server Error!! Try again" });
+      }
+    } else {
+      res.status(401).json({ message: "Unauthorized operation" });
+    }
+  }
+
+  async function __getTokenStats(userObject) {
+    try {
+      const totalTokens = await contract.methods
+        .totalSupply()
+        .call({ from: userObject.bcAddress });
+
+      const tokensRemaining = await contract.methods
+        .getTokenBalance()
+        .call({ from: userObject.bcAddress });
+
+      return { totalTokens, tokensRemaining };
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  }
+
+  async function getTokenStats(req, res, next) {
+
+    const { userId } = req.params;
+
+    let userObject;
+    try {
+      userObject = await User.findOne({ _id: userId });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ message: "Network error, try again" });
+    }
+
+    if (userObject.accountType == "admin") {
+      try {
+        const stats = await __getTokenStats(userObject);
+        if (!stats) {
+          throw "Error in calling contract functions";
+        }
+        const { totalTokens, tokensRemaining } = stats;
+
+        res.status(200).json({ totalTokens, tokensRemaining });
+      } catch (err) {
+        console.error(err);
+        res
+          .status(500)
+          .json({ message: "Cannot retrieve token stats right now. Try again" });
+      }
+    } else {
+      res.status(401).json({message: "Unauthorized operation."});
+    }
+    
+  }
+
   // admin read
   adminRouter.get("/:userId/list_users", listAllUsers);
+
+  adminRouter.get("/:userId/get_token_stats", getTokenStats);
+
+  adminRouter.post("/:userId/add_tokens", addTokens);
 
   // admin delete
   adminRouter.delete("/:userId/remove_user/:userIdToRemove", deleteUser);

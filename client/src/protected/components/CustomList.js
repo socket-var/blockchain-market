@@ -15,7 +15,9 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import TextField from "@material-ui/core/TextField";
+
 import AddDepositForm from "./AddDepositForm";
+import AddTokensForm from "./AddTokensForm";
 
 const styles = theme => ({
   root: {
@@ -40,10 +42,16 @@ class CustomList extends React.Component {
       openDepositModal,
       closeDepositModal,
       accountBalance,
-      isModalOpen,
+      totalTokens,
+      tokensRemaining,
+      isAddDepositModalOpen,
       onInputChange,
       addDeposit,
-      userId
+      userId,
+      openAddTokensModal,
+      isAddTokensModalOpen,
+      closeAddTokensModal,
+      addTokens
     } = this.props;
 
     const listItems = data.map((item, idx) => (
@@ -72,9 +80,16 @@ class CustomList extends React.Component {
       <div className={classes.root}>
         <Typography variant="h6" className={classes.title}>
           Registered Users:
+          <Button
+            color="inherit"
+            className={classes.defaultChild}
+            onClick={openAddTokensModal}
+          >
+            Add Tokens
+              </Button>
         </Typography>
         <Dialog
-          open={isModalOpen}
+          open={isAddDepositModalOpen}
           onClose={closeDepositModal}
           aria-labelledby="form-dialog-title"
         >
@@ -94,6 +109,28 @@ class CustomList extends React.Component {
             </Button>
           </DialogActions>
         </Dialog>
+        <Dialog
+          open={isAddTokensModalOpen}
+          onClose={closeAddTokensModal}
+          aria-labelledby="form-dialog-title"
+        >
+          <DialogTitle id="form-dialog-title">Add tokens:</DialogTitle>
+          <DialogContent>
+            <AddTokensForm
+              addTokens={addTokens}
+              onInputChange={onInputChange}
+              onSubmit={addTokens}
+              totalTokens={totalTokens}
+              tokensRemaining={tokensRemaining}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={closeAddTokensModal} color="primary">
+              Cancel
+            </Button>
+          </DialogActions>
+        </Dialog>
+
         <div className={classes.demo}>
           {listItems.length > 0 ? (
             <List>{listItems}</List>
@@ -114,10 +151,14 @@ CustomList.propTypes = {
   openDepositModal: PropTypes.func.isRequired,
   closeDepositModal: PropTypes.func.isRequired,
   accountBalance: PropTypes.number.isRequired,
-  isModalOpen: PropTypes.bool.isRequired,
+  isAddDepositModalOpen: PropTypes.bool.isRequired,
   onInputChange: PropTypes.func.isRequired,
   addDeposit: PropTypes.func.isRequired,
-  userId: PropTypes.string.isRequired
+  userId: PropTypes.string.isRequired,
+  openAddTokensModal: PropTypes.func.isRequired,
+  closeAddTokensModal: PropTypes.func.isRequired,
+  isAddTokensModalOpen: PropTypes.bool.isRequired,
+  addTokens: PropTypes.func.isRequired
 };
 
 export default withStyles(styles)(CustomList);
