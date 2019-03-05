@@ -146,7 +146,7 @@ contract Market {
 
     function buy(string memory productId, uint priceInTokens, address seller) public onlyBuyer returns(bytes32) {
 
-        require(msg.sender.balance >= priceInTokens, "Transfer failed due to insufficient balance");
+        require(users[msg.sender].balance >= priceInTokens, "Transfer failed due to insufficient balance");
         require(msg.sender != seller, "Invalid: Can't transfer token to the same account");
         
         settlePayment(msg.sender, seller, priceInTokens);
