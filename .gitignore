@@ -1,3 +1,6 @@
+# truffle build
+truffle-build/build
+
 # Logs
 logs
 *.log
