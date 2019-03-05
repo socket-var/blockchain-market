@@ -6,6 +6,8 @@ const logger = require("morgan");
 
 const mongoose = require("mongoose");
 
+const createContract = require("./ethereum/marketContract");
+
 // router definition files
 const authRouter = require("./rest_api/routes/auth");
 const adminRouter = require("./rest_api/routes/admin");
@@ -22,6 +24,9 @@ if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
 
+//define ethereum contract here
+const contract = createContract(process.env.CONTRACT_ADDRESS);
+
 // connect to db
 const dbURL = process.env.DB_URL;
 
@@ -35,10 +40,10 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "client", "build")));
 
 // use routes
-app.use("/auth", authRouter);
-app.use("/api/admin", adminRouter);
-app.use("/api/user", userRouter);
-app.use("/api/products", productRouter);
+app.use("/auth", authRouter(contract));
+app.use("/api/admin", adminRouter(contract));
+app.use("/api/user", userRouter(contract));
+app.use("/api/products", productRouter(contract));
 
 // needed for Single-page application to reroute to index page
 app.get("*", function(req, res, next) {

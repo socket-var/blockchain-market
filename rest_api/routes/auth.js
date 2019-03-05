@@ -3,83 +3,115 @@ const authRouter = express.Router();
 const User = require("../models/auth");
 const bcrypt = require("bcryptjs");
 
-// called when signup post request is made
-async function signupFunction(req, res, next) {
-  const { accountAddress, email, password, accountType } = req.body;
-  // called when a new user needs to be created
+module.exports = function(contract) {
+  // called when signup post request is made
+  async function signupFunction(req, res, next) {
+    const { accountAddress, email, password, accountType } = req.body;
+    // called when a new user needs to be created
 
-  // check if the user exists
+    // check if the user exists
 
-  let matchedDoc;
-  try {
-    matchedDoc = await User.findOne({ email });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: "Network error, try again" });
-  }
-
-  if (!matchedDoc) {
-    let hash;
+    let matchedDoc;
     try {
-      const salt = await bcrypt.genSalt(14);
-
-      hash = await bcrypt.hash(password, salt);
+      matchedDoc = await User.findOne({ email });
     } catch (err) {
       console.error(err);
-      return res
-        .status(500)
-        .send({ message: "Signup failed. Malformed password. Try again." });
+      return res.status(500).json({ message: "Network error, try again" });
     }
 
-    const newUser = new User({
-      bcAddress: accountAddress,
-      email,
-      password: hash,
-      accountType
-    });
+    if (!matchedDoc) {
+      let hash;
+      try {
+        const salt = await bcrypt.genSalt(14);
 
-    let savedUser;
+        hash = await bcrypt.hash(password, salt);
+      } catch (err) {
+        console.error(err);
+        return res
+          .status(500)
+          .send({ message: "Signup failed. Malformed password. Try again." });
+      }
+
+      let bcUserRegistered;
+
+      try {
+        console.debug(`Calling register with ${process.env.ADMIN_ADDRESS}`);
+        console.debug(
+          `passing parameters: ${accountAddress}, ${accountType}, 100`
+        );
+
+        let estimate = await contract.methods
+          .register(accountAddress, accountType, 100)
+          .estimateGas();
+
+        bcUserRegistered = await contract.methods
+          .register(accountAddress, accountType, 100)
+          .send({
+            from: process.env.ADMIN_ADDRESS,
+            gas: estimate + 10000
+          });
+      } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Blockchain error. Try again" });
+      }
+
+      if (bcUserRegistered) {
+        let savedUser;
+
+        const newUser = new User({
+          bcAddress: accountAddress,
+          email,
+          password: hash,
+          accountType,
+          accountBalance: 100
+        });
+        try {
+          savedUser = await newUser.save();
+        } catch (err) {
+          console.error(err);
+          return res.status(401).json({ message: "Signup failed. Try again" });
+        }
+        res.status(200).json({ message: "Signup success!", user: savedUser });
+      }
+    } else {
+      res
+        .status(401)
+        .send({ message: "Account with this email already exists" });
+    }
+  }
+
+  // called when login post request is made
+  async function loginFunction(req, res, next) {
+    const email = req.body.email;
+    const password = req.body.password;
+
+    let userDoc;
     try {
-      savedUser = await newUser.save();
+      userDoc = await User.findOne({ email });
     } catch (err) {
       console.error(err);
-      return res.status(401).json({ message: "Signup failed. Try again" });
+      return res.status(500).send({ message: "Network error. Try again." });
     }
-    res.status(200).json({ message: "Signup success!", user: savedUser });
-  } else {
-    res.status(401).send({ message: "Account with this email already exists" });
-  }
-}
 
-// called when login post request is made
-async function loginFunction(req, res, next) {
-  const email = req.body.email;
-  const password = req.body.password;
+    if (userDoc) {
+      const result = await bcrypt.compare(password, userDoc.password);
 
-  let userDoc;
-  try {
-    userDoc = await User.findOne({ email });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).send({ message: "Network error. Try again." });
-  }
-
-  if (userDoc) {
-    const result = await bcrypt.compare(password, userDoc.password);
-
-    if (result) {
-      return res.status(200).json({ message: "Login Success", user: userDoc });
+      if (result) {
+        return res
+          .status(200)
+          .json({ message: "Login Success", user: userDoc });
+      }
+      res.status(401).json({ message: "Email or password is incorrect" });
+    } else {
+      res
+        .status(401)
+        .json({ message: "Your account does not exist, please register" });
     }
-    res.status(401).json({ message: "Email or password is incorrect" });
-  } else {
-    res
-      .status(401)
-      .json({ message: "Your account does not exist, please register" });
   }
-}
 
-authRouter.route("/signup").post(signupFunction);
+  authRouter.route("/signup").post(signupFunction);
 
-authRouter.route("/login").post(loginFunction);
+  authRouter.route("/login").post(loginFunction);
 
-module.exports = authRouter;
+  return authRouter;
+};
