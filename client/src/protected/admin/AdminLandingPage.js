@@ -4,6 +4,7 @@ import axios from "axios";
 
 import CustomList from "../components/CustomList";
 import ajaxErrorHandler from "../../common/functions/ajaxErrorHandler";
+import ManageTokens from "../components/ManageTokens";
 
 export default class AdminLandingPage extends Component {
   static propTypes = {
@@ -107,19 +108,22 @@ export default class AdminLandingPage extends Component {
 
   openAddTokensModal = async () => {
     this.setState({ isAddTokensModalOpen: true });
-  }
+  };
 
   closeAddTokensModal = async () => {
     this.setState({ isAddTokensModalOpen: false });
-  }
-  
-  addTokens = async (evt) => {
+  };
+
+  addTokens = async evt => {
     evt.preventDefault();
 
     try {
-      const result = await axios.post(`/api/admin/${this.props.userId}/add_tokens`, {
-        rechargeAmount: this.state.addTokensField
-      });
+      const result = await axios.post(
+        `/api/admin/${this.props.userId}/add_tokens`,
+        {
+          rechargeAmount: this.state.addTokensField
+        }
+      );
 
       const { totalTokens, tokensRemaining, message } = result.data;
 
@@ -129,31 +133,32 @@ export default class AdminLandingPage extends Component {
       });
 
       this.props.openSnackbar(message);
-
-    } catch(err) {
+    } catch (err) {
       this.catchFunction(err);
     }
-
-  }
+  };
 
   async getTokenStats(apiUrl) {
     try {
       const result = await axios.get(apiUrl);
 
-      const { totalTokens, tokensRemaining } = result.data;
+      const { totalTokens, tokensRemaining, message } = result.data;
 
-      this.setState({
-        totalTokens,
-        tokensRemaining
-      });
-
-    } catch(err) {
+      if (message) {
+        this.setState({
+          totalTokens: message,
+          tokensRemaining: message
+        });
+      } else {
+        this.setState({
+          totalTokens,
+          tokensRemaining
+        });
+      }
+    } catch (err) {
       this.catchFunction(err);
     }
-
-    
   }
-
 
   componentDidMount() {
     this.listAllUsers(`/api/admin/${this.props.userId}/list_users`);
@@ -161,9 +166,26 @@ export default class AdminLandingPage extends Component {
   }
 
   render() {
-    const { isAddDepositModalOpen, accountBalance, users, selectedUser, totalTokens, tokensRemaining, isAddTokensModalOpen } = this.state;
+    const {
+      isAddDepositModalOpen,
+      accountBalance,
+      users,
+      selectedUser,
+      totalTokens,
+      tokensRemaining,
+      isAddTokensModalOpen
+    } = this.state;
     return (
       <div>
+        <ManageTokens
+          totalTokens={totalTokens}
+          tokensRemaining={tokensRemaining}
+          openAddTokensModal={this.openAddTokensModal}
+          isAddTokensModalOpen={isAddTokensModalOpen}
+          closeAddTokensModal={this.closeAddTokensModal}
+          addTokens={this.addTokens}
+          onInputChange={this.onInputChange}
+        />
         <CustomList
           data={users}
           removeUser={this.removeUser}
@@ -181,7 +203,7 @@ export default class AdminLandingPage extends Component {
           addTokens={this.addTokens}
           totalTokens={totalTokens}
           tokensRemaining={tokensRemaining}
-          />
+        />
       </div>
     );
   }

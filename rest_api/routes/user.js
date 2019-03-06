@@ -108,7 +108,7 @@ module.exports = function(contract) {
       const userObject = await User.findOne({ _id: req.params.userId });
 
       let requestorObject;
-      if (requestorObject) {
+      if (requestedBy) {
         requestorObject = await User.findOne({ _id: requestedBy });
       }
       let userBcAddress;
@@ -199,11 +199,9 @@ module.exports = function(contract) {
           });
       } catch (err) {
         console.error(err);
-        return res
-          .status(500)
-          .json({
-            message: "Insufficient account balance. Transaction failed!!"
-          });
+        return res.status(500).json({
+          message: "Insufficient account balance. Transaction failed!!"
+        });
       }
       transactionId = transactionId.toString();
       console.debug(transactionId);

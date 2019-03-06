@@ -12,12 +12,9 @@ import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import TextField from "@material-ui/core/TextField";
 
 import AddDepositForm from "./AddDepositForm";
-import AddTokensForm from "./AddTokensForm";
 
 const styles = theme => ({
   root: {
@@ -32,7 +29,7 @@ const styles = theme => ({
   }
 });
 
-class CustomList extends React.Component {
+class UserList extends React.Component {
   render() {
     const {
       classes,
@@ -42,16 +39,10 @@ class CustomList extends React.Component {
       openDepositModal,
       closeDepositModal,
       accountBalance,
-      totalTokens,
-      tokensRemaining,
       isAddDepositModalOpen,
       onInputChange,
       addDeposit,
-      userId,
-      openAddTokensModal,
-      isAddTokensModalOpen,
-      closeAddTokensModal,
-      addTokens
+      userId
     } = this.props;
 
     const listItems = data.map((item, idx) => (
@@ -80,13 +71,6 @@ class CustomList extends React.Component {
       <div className={classes.root}>
         <Typography variant="h6" className={classes.title}>
           Registered Users:
-          <Button
-            color="inherit"
-            className={classes.defaultChild}
-            onClick={openAddTokensModal}
-          >
-            Add Tokens
-              </Button>
         </Typography>
         <Dialog
           open={isAddDepositModalOpen}
@@ -109,27 +93,6 @@ class CustomList extends React.Component {
             </Button>
           </DialogActions>
         </Dialog>
-        <Dialog
-          open={isAddTokensModalOpen}
-          onClose={closeAddTokensModal}
-          aria-labelledby="form-dialog-title"
-        >
-          <DialogTitle id="form-dialog-title">Add tokens:</DialogTitle>
-          <DialogContent>
-            <AddTokensForm
-              addTokens={addTokens}
-              onInputChange={onInputChange}
-              onSubmit={addTokens}
-              totalTokens={totalTokens}
-              tokensRemaining={tokensRemaining}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={closeAddTokensModal} color="primary">
-              Cancel
-            </Button>
-          </DialogActions>
-        </Dialog>
 
         <div className={classes.demo}>
           {listItems.length > 0 ? (
@@ -143,7 +106,7 @@ class CustomList extends React.Component {
   }
 }
 
-CustomList.propTypes = {
+UserList.propTypes = {
   classes: PropTypes.object.isRequired,
   data: PropTypes.array,
   removeUser: PropTypes.func.isRequired,
@@ -154,11 +117,7 @@ CustomList.propTypes = {
   isAddDepositModalOpen: PropTypes.bool.isRequired,
   onInputChange: PropTypes.func.isRequired,
   addDeposit: PropTypes.func.isRequired,
-  userId: PropTypes.string.isRequired,
-  openAddTokensModal: PropTypes.func.isRequired,
-  closeAddTokensModal: PropTypes.func.isRequired,
-  isAddTokensModalOpen: PropTypes.bool.isRequired,
-  addTokens: PropTypes.func.isRequired
+  userId: PropTypes.string.isRequired
 };
 
-export default withStyles(styles)(CustomList);
+export default withStyles(styles)(UserList);
