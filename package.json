@@ -7,7 +7,7 @@
     "server": "node ./bin/www",
     "dev-server": "nodemon ./bin/www",
     "dev-start": "set NODE_ENV=development & set DEBUG=blockchain-market:* & concurrently --kill-others \"npm run dev-server\" \"npm run client\"",
-    "start": "set NODE_ENV=production & \"npm run server\"",
+    "start": "set NODE_ENV=production & npm run server",
     "dev-test-run": "set NODE_ENV=development & npm run server",
     "heroku-postbuild": "cd client && npm install && npm run build"
   },
@@ -22,6 +22,7 @@
     "http-errors": "~1.6.2",
     "mongoose": "^5.4.11",
     "morgan": "~1.9.0",
+    "truffle-hdwallet-provider": "^1.0.5",
     "web3": "^1.0.0-beta.47"
   },
   "devDependencies": {
