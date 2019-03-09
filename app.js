@@ -6,8 +6,6 @@ const logger = require("morgan");
 
 const mongoose = require("mongoose");
 
-const createContract = require("./ethereum/marketContract");
-
 // router definition files
 const authRouter = require("./rest_api/routes/auth");
 const adminRouter = require("./rest_api/routes/admin");
@@ -24,6 +22,7 @@ if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
 
+const createContract = require("./ethereum/marketContract");
 //define ethereum contract here
 const contract = createContract(process.env.CONTRACT_ADDRESS);
 
