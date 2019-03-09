@@ -100,6 +100,7 @@ module.exports = function(contract) {
   }
 
   // this request should only come from admin or the same user
+  // TODO: change this later to not allow admin to addDeposit if not enough tokens
   async function addDeposit(req, res, next) {
     const { password, requestedBy } = req.body;
     const rechargeAmount = parseInt(req.body.rechargeAmount);
@@ -186,13 +187,18 @@ module.exports = function(contract) {
       }
 
       const retailPrice = parseInt(productToBuy.retailPrice);
-      // for now return tx
+
+      if (buyer.accountBalance < retailPrice) {
+        return res
+          .status(401)
+          .json({ message: "Insufficient account balance. Please recharge" });
+      }
 
       let transactionId;
 
       try {
         transactionId = await contract.methods
-          .buy(productToBuy._id.toString(), retailPrice, seller.bcAddress)
+          .buy(retailPrice, seller.bcAddress)
           .send({
             from: buyer.bcAddress,
             gas: 200000
@@ -205,6 +211,9 @@ module.exports = function(contract) {
       }
       transactionId = transactionId.toString();
       console.debug(transactionId);
+
+      buyer.accountBalance = buyer.accountBalance - retailPrice;
+      seller.accountBalance = seller.accountBalance + retailPrice;
 
       buyer.purchases.push({
         transactionId,

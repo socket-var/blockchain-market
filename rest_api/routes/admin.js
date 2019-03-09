@@ -102,17 +102,17 @@ module.exports = function(contract) {
 
         const stats = await __getTokenStats(userObject);
 
-        if (!stats) { throw "Error in calling contract functions"; }
+        if (!stats) {
+          throw "Error in calling contract functions";
+        }
 
         const { totalTokens, tokensRemaining } = stats;
 
-        return res
-          .status(200)
-          .json({
-            totalTokens,
-            tokensRemaining,
-            message: "Successfully added tokens to the network"
-          });
+        return res.status(200).json({
+          totalTokens,
+          tokensRemaining,
+          message: "Successfully added tokens to the network"
+        });
       } catch (err) {
         console.error(err);
         return res.status(500).json({ message: "Server Error!! Try again" });
@@ -140,7 +140,6 @@ module.exports = function(contract) {
   }
 
   async function getTokenStats(req, res, next) {
-
     const { userId } = req.params;
 
     let userObject;
@@ -162,14 +161,13 @@ module.exports = function(contract) {
         res.status(200).json({ totalTokens, tokensRemaining });
       } catch (err) {
         console.error(err);
-        res
-          .status(500)
-          .json({ message: "Cannot retrieve token stats right now. Try again" });
+        res.status(500).json({
+          message: "Cannot retrieve token stats right now. Try again"
+        });
       }
     } else {
-      res.status(401).json({message: "Unauthorized operation."});
+      res.status(401).json({ message: "Unauthorized operation." });
     }
-    
   }
 
   // admin read

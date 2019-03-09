@@ -67,7 +67,7 @@ export default class AdminLandingPage extends Component {
 
   catchFunction = err => {
     let message = ajaxErrorHandler(err);
-    this.props.openSnackbar({ message });
+    this.props.openSnackbar(message);
   };
 
   removeUser = async evt => {

@@ -88,8 +88,8 @@ module.exports = function(contract) {
     let savedProduct;
 
     const newProduct = new Product({
-      product_name: productName,
-      retail_price: retailPrice,
+      productName: productName,
+      retailPrice: retailPrice,
       createdBy: userId,
       numUnits
     });
@@ -101,12 +101,10 @@ module.exports = function(contract) {
         userObject.itemsForSale.push(savedProduct._id);
 
         const savedUser = await userObject.save();
-        res
-          .status(200)
-          .json({
-            product: savedProduct,
-            message: "Product successfully added"
-          });
+        res.status(200).json({
+          product: savedProduct,
+          message: "Product successfully added"
+        });
       } else {
         res.status(401).json({ message: "Not authorized." });
       }

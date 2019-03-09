@@ -27,9 +27,10 @@ const ProductList = props => {
     products.forEach((item, idx) => {
       const imageUrl =
         item.image.length > 0 ? item.image[0] : "/placeholder.png";
+      console.log(item.productName);
       const productId = item._id;
-      const productName = item.product_name;
-      const retailPrice = item.retail_price;
+      const productName = item.productName;
+      const retailPrice = item.retailPrice;
       const numUnits = item.numUnits;
       cards.push(
         <ProductCard

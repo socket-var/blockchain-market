@@ -138,7 +138,6 @@ export default class AuthProvider extends Component {
   };
 
   onCheckStateChange = evt => {
-    console.debug(evt.target.id);
     this.setState({
       [evt.target.id]: evt.target.checked
     });

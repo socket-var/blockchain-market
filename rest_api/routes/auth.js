@@ -37,19 +37,20 @@ module.exports = function(contract) {
       try {
         console.debug(`Calling register with ${process.env.ADMIN_ADDRESS}`);
         console.debug(
-          `passing parameters: ${accountAddress}, ${accountType}, 100`
+          `passing parameters: ${accountAddress}, ${accountType}, 500`
         );
 
         let estimate = await contract.methods
-          .register(accountAddress, accountType, 100)
+          .register(accountAddress, accountType, 500)
           .estimateGas();
 
         bcUserRegistered = await contract.methods
-          .register(accountAddress, accountType, 100)
+          .register(accountAddress, accountType, 500)
           .send({
             from: process.env.ADMIN_ADDRESS,
             gas: estimate + 10000
           });
+        console.debug(estimate, bcUserRegistered);
       } catch (err) {
         console.error(err);
         return res.status(500).json({ message: "Blockchain error. Try again" });
@@ -63,7 +64,7 @@ module.exports = function(contract) {
           email,
           password: hash,
           accountType,
-          accountBalance: 100
+          accountBalance: 500
         });
         try {
           savedUser = await newUser.save();
