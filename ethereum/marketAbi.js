@@ -235,10 +235,6 @@ module.exports = [
       "constant": false,
       "inputs": [
         {
-          "name": "productId",
-          "type": "string"
-        },
-        {
           "name": "priceInTokens",
           "type": "uint256"
         },
@@ -257,6 +253,6 @@ module.exports = [
       "payable": false,
       "stateMutability": "nonpayable",
       "type": "function",
-      "signature": "0x365366fb"
+      "signature": "0x7deb6025"
     }
   ]
