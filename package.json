@@ -7,7 +7,8 @@
     "server": "node ./bin/www",
     "dev-server": "nodemon ./bin/www",
     "dev-start": "set NODE_ENV=development & set DEBUG=blockchain-market:* & concurrently --kill-others \"npm run dev-server\" \"npm run client\"",
-    "start": "set NODE_ENV=production & concurrently \"npm run server\" \"npm run client\"",
+    "start": "set NODE_ENV=production & \"npm run server\"",
+    "dev-test-run": "set NODE_ENV=development & npm run server",
     "heroku-postbuild": "cd client && npm install && npm run build"
   },
   "dependencies": {
