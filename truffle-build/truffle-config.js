@@ -20,7 +20,7 @@ require("dotenv").config();
  */
 
 const HDWalletProvider = require("truffle-hdwallet-provider");
-const infuraKey = "e54722a1344d4922af3aa3e90cda9baf";
+const infuraKey = process.env.APIKEY;
 //
 // const fs = require('fs');
 // const mnemonic = fs.readFileSync(".secret").toString().trim();
@@ -80,7 +80,8 @@ module.exports = {
           `https://rinkeby.infura.io/v3/${infuraKey}`
         ),
       network_id: "4",
-      from: "0x8d5a811678e91090b660f178e2aa1636ba13c065"
+      from: process.env.ADMIN_ADDRESS,
+      gas: 6000000
     }
   },
 

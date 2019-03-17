@@ -5,8 +5,8 @@ contract Market {
     struct User {
         // to make sure that the user is not registered during signup
         bool isRegistered;
-        // chairperson, buyer, seller or buyer_and_seller
-        string userType;
+        // is admin or not
+        bool isAdmin;
         // account balance
         uint balance;
     }
@@ -15,7 +15,6 @@ contract Market {
     // define a list of all users 
     mapping(address => User) private users;
 
-    bytes32[] private transactions;
     uint private totalTokensInNetwork;
     uint private tokensRemaining;
     uint private nonce = 0;
@@ -27,21 +26,8 @@ contract Market {
         _;
     }
 
-    // seller or buyer_and_seller
-    modifier onlySeller() {
-        bytes memory seller = bytes("seller");
-        bytes memory buyerAndSeller = bytes("buyer_and_seller");
-        bytes memory userType = bytes(users[msg.sender].userType);
-        require(keccak256(userType) == keccak256(seller) || keccak256(userType) == keccak256(buyerAndSeller), "Only seller or buyer_and_seller can call this");
-        _;
-    }
-
-    // buyer or buyer_and_seller
-    modifier onlyBuyer() {
-        bytes memory buyer = bytes("buyer");
-        bytes memory buyerAndSeller = bytes("buyer_and_seller");
-        bytes memory userType = bytes(users[msg.sender].userType);
-        require(keccak256(userType) == keccak256(buyer) || keccak256(userType) == keccak256(buyerAndSeller), "Only buyer or buyer_and_seller can call this");
+    modifier onlyBuyerSeller() {
+        require(users[msg.sender].isAdmin == false, "Only seller and buyer can call this");
         _;
     }
 
@@ -64,8 +50,11 @@ contract Market {
     
     constructor() public {
         chairperson = msg.sender;
-        users[chairperson].userType = "chairperson";
+        users[chairperson].isAdmin = true;
         users[chairperson].isRegistered = true;
+        
+        totalTokensInNetwork = 0;
+        tokensRemaining = 0;
     }
     
     /* Chairperson functions go here */
@@ -108,10 +97,10 @@ contract Market {
     }
 
     // called by the chairperson when a new user needs to be registered. A new user structure is added to the list of users and a deposit more like a "signup bonus" is added to user's account.
-    function register(address newUser, string memory userType, uint amount) public onlyChairperson {
+    function register(address newUser, uint amount) public onlyChairperson {
         require(users[newUser].isRegistered == false, "already registered user");
         
-        users[newUser].userType = userType;
+        users[newUser].isAdmin = false;
         users[newUser].isRegistered = true;
         
         
@@ -121,22 +110,18 @@ contract Market {
         emit UserRegistered(newUser);
     }
     
-    // when user unregisters this is called which removes all the user's tokens from the system (assuming in the real world the user's tokens are converted and transferred to bank account using a payment gateway)
-    // Essentially user buys-out his remaining balance when unregistered
-    function burnTokensOf(address userAddress) internal {
-        require(users[userAddress].isRegistered == true, "Error: Not a registered user");
-        if (users[userAddress].balance > 0) {
-            tokensRemaining -= users[userAddress].balance;
-            totalTokensInNetwork -= users[userAddress].balance;
-            delete users[userAddress].balance;
-        }
-    }
-    
     // called when a user is to be unregistered, first the user's balance is transferred to the user and user's registration details are deleted 
+    // Essentially user buys-out his remaining balance when unregistered
     function unregister(address userAddress) public onlyChairperson {
         require(users[userAddress].isRegistered == true, "Error: User to unregister not found");
         require(userAddress != msg.sender, "Cannot unregister yourself");
-        burnTokensOf(userAddress);
+        
+        // transfer all tokens to user when unregistered i.e. remove tokens from the network
+        if (users[userAddress].balance > 0) {
+            tokensRemaining -= users[userAddress].balance;
+            totalTokensInNetwork -= users[userAddress].balance;
+        }
+
         delete users[userAddress];
         
         emit UserUnregistered(userAddress);
@@ -145,23 +130,18 @@ contract Market {
     /* Chairperson functions end here */
 
     /* Buy function */
-    // called by buy() to add money to and deduct money from seller and buyer's account
-    function settle(address buyer, address seller, uint priceInTokens) internal {
-        require(users[buyer].isRegistered == true, "Buyer address not found");
-        require(users[seller].isRegistered == true, "Seller address not found");
-        
-        users[buyer].balance -= priceInTokens;
-        users[seller].balance += priceInTokens;
-        emit TransferSuccess(buyer, seller, priceInTokens);
-    }
 
     // checks if sufficient balance is present in the buyer's account and calls settle() to make the money transfer
-    function buy(uint priceInTokens, address seller) public onlyBuyer returns(bytes32) {
+    function buy(uint priceInTokens, address seller) public onlyBuyerSeller {
+        require(users[msg.sender].isRegistered == true, "Buyer address not found");
         require(users[seller].isRegistered == true, "Seller address does not exist");
         require(users[msg.sender].balance >= priceInTokens, "Transfer failed due to insufficient balance");
         require(msg.sender != seller, "Invalid: Can't transfer tokens to the same account");
         
-        settle(msg.sender, seller, priceInTokens);
+        // settle payment
+        users[msg.sender].balance -= priceInTokens;
+        users[seller].balance += priceInTokens;
+        emit TransferSuccess(msg.sender, seller, priceInTokens);
 
     }
 

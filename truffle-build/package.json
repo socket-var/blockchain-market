@@ -12,7 +12,7 @@
   },
   "devDependencies": {},
   "scripts": {
-    "start": "set DEPLOY_NETWORK=rinkeby & truffle migrate --network rinkeby",
+    "start": "truffle migrate -f 2 --network rinkeby",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
