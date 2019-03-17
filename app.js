@@ -6,6 +6,11 @@ const logger = require("morgan");
 
 const mongoose = require("mongoose");
 
+if (process.env.NODE_ENV !== "production") {
+  mongoose.set("debug", true);
+  require("dotenv").config();
+}
+
 // router definition files
 const authRouter = require("./rest_api/routes/auth");
 const adminRouter = require("./rest_api/routes/admin");
@@ -16,11 +21,6 @@ const productRouter = require("./rest_api/routes/products");
 
 // instantiate server
 const app = express();
-
-if (process.env.NODE_ENV !== "production") {
-  mongoose.set("debug", true);
-  require("dotenv").config();
-}
 
 const createContract = require("./ethereum/marketContract");
 //define ethereum contract here

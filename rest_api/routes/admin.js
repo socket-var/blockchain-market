@@ -3,6 +3,8 @@ const adminRouter = express.Router();
 const Product = require("../models/Product");
 const User = require("../models/auth");
 
+const { signTx } = require("../helpers");
+
 module.exports = function(contract) {
   async function listAllUsers(req, res, next) {
     const userId = req.params.userId;
@@ -15,7 +17,7 @@ module.exports = function(contract) {
       return res.status(500).json({ message: "Network error. Try again" });
     }
 
-    if (userObject.accountType === "admin") {
+    if (userObject.isAdmin) {
       try {
         const listOfUsers = await User.find({})
           .where("_id")
@@ -29,7 +31,7 @@ module.exports = function(contract) {
       res.status(401).json({ message: "Unauthorized operation." });
     }
   }
-
+  // TODO: delete the products the user posted too when deleting the user
   async function deleteUser(req, res, next) {
     const { userId, userIdToRemove } = req.params;
 
@@ -42,16 +44,19 @@ module.exports = function(contract) {
     }
 
     let deleteObject;
-    if (userObject.accountType === "admin") {
+    if (userObject.isAdmin) {
       const userToRemove = await User.findById(userIdToRemove);
       if (userToRemove) {
         try {
           let unregisterResult;
           try {
             console.debug(`Unregistering ${userObject.bcAddress}`);
-            unregisterResult = await contract.methods
-              .unregister(userToRemove.bcAddress)
-              .send({ from: process.env.ADMIN_ADDRESS, gas: 100000 });
+            unregisterResult = await signTx(
+              process.env.ADMIN_ADDRESS,
+              process.env.CONTRACT_ADDRESS,
+              process.env.PRIVATE_KEY,
+              contract.methods.unregister(userToRemove.bcAddress).encodeABI()
+            );
           } catch (err) {
             console.error(err);
             return res
@@ -94,11 +99,14 @@ module.exports = function(contract) {
       return res.status(500).json({ message: "Network error, try again" });
     }
 
-    if (userObject.accountType == "admin") {
+    if (userObject.isAdmin) {
       try {
-        const result = await contract.methods
-          .addTokens(rechargeAmount)
-          .send({ from: userObject.bcAddress, gas: 200000 });
+        const result = await signTx(
+          process.env.ADMIN_ADDRESS,
+          process.env.CONTRACT_ADDRESS,
+          process.env.PRIVATE_KEY,
+          contract.methods.addTokens(rechargeAmount).encodeABI()
+        );
 
         const stats = await __getTokenStats(userObject);
 
@@ -115,7 +123,9 @@ module.exports = function(contract) {
         });
       } catch (err) {
         console.error(err);
-        return res.status(500).json({ message: "Server Error!! Try again" });
+        return res
+          .status(500)
+          .json({ message: "Failed to add tokens. Try again" });
       }
     } else {
       res.status(401).json({ message: "Unauthorized operation" });
@@ -127,6 +137,8 @@ module.exports = function(contract) {
       const totalTokens = await contract.methods
         .totalSupply()
         .call({ from: userObject.bcAddress });
+
+      console.debug(totalTokens);
 
       const tokensRemaining = await contract.methods
         .getTokenBalance()
@@ -150,7 +162,7 @@ module.exports = function(contract) {
       return res.status(500).json({ message: "Network error, try again" });
     }
 
-    if (userObject.accountType == "admin") {
+    if (userObject.isAdmin) {
       try {
         const stats = await __getTokenStats(userObject);
         if (!stats) {
@@ -169,6 +181,68 @@ module.exports = function(contract) {
       res.status(401).json({ message: "Unauthorized operation." });
     }
   }
+  // TODO: Add deposit only when num tokens is >= deposit
+  async function addDeposit(req, res, next) {
+    const { requestedBy } = req.body;
+    const rechargeAmount = parseInt(req.body.rechargeAmount);
+
+    try {
+      const userObject = await User.findOne({ _id: req.params.userId });
+
+      const tokensRemaining = await contract.methods
+        .getTokenBalance()
+        .call({ from: userObject.bcAddress });
+
+      if (tokensRemaining < rechargeAmount) {
+        return res
+          .status(401)
+          .json({ message: "Insufficient tokens remaining. Deposit failed" });
+      }
+
+      let requestorObject;
+      if (requestedBy) {
+        requestorObject = await User.findOne({ _id: requestedBy });
+
+        let userBcAddress;
+        if (userObject) {
+          userBcAddress = userObject.bcAddress;
+          if (requestorObject && requestorObject.isAdmin) {
+            fromAccount = requestorObject.bcAddress;
+            const addDepositResult = await signTx(
+              process.env.ADMIN_ADDRESS,
+              process.env.CONTRACT_ADDRESS,
+              process.env.PRIVATE_KEY,
+              contract.methods
+                .addDeposit(userBcAddress, rechargeAmount)
+                .encodeABI()
+            );
+
+            if (addDepositResult) {
+              userObject.accountBalance += rechargeAmount;
+
+              await userObject.save();
+
+              res.status(200).json({
+                accountBalance: userObject.accountBalance,
+                message: "Amount added to the wallet!!"
+              });
+            }
+          } else {
+            return res.status(404).json({ message: "Unauthorized request!!" });
+          }
+        } else {
+          return res.status(401).json({
+            message: "User not found"
+          });
+        }
+      } else {
+        res.status(401).json({ message: "Unauthorized request!!" });
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Network error!! Try again." });
+    }
+  }
 
   // admin read
   adminRouter.get("/:userId/list_users", listAllUsers);
@@ -176,6 +250,8 @@ module.exports = function(contract) {
   adminRouter.get("/:userId/get_token_stats", getTokenStats);
 
   adminRouter.post("/:userId/add_tokens", addTokens);
+
+  adminRouter.post("/:userId/add_deposit", addDeposit);
 
   // admin delete
   adminRouter.delete("/:userId/remove_user/:userIdToRemove", deleteUser);

@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
   password: String,
   cart: Array,
   itemsForSale: Array,
-  accountType: String,
+  isAdmin: { type: Boolean, default: false },
   purchases: [{ transactionId: String, productId: String, boughtFrom: String }],
   sales: [{ transactionId: String, productId: String, soldTo: String }],
   accountBalance: { type: Number, default: 0 }

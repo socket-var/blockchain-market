@@ -13,7 +13,6 @@ export default class AuthProvider extends Component {
   initialState = {
     isLoggedIn: false,
     isAdminLoggedIn: false,
-    accountType: null,
     currentUserId: null,
     emailField: "",
     passwordField: "",
@@ -49,24 +48,10 @@ export default class AuthProvider extends Component {
 
     if (passwordField === confirmPasswordField) {
       try {
-        let accountType;
-        if (sellerCheckbox && buyerCheckbox) {
-          accountType = "buyer_and_seller";
-        } else if (sellerCheckbox) {
-          accountType = "seller";
-        } else if (buyerCheckbox) {
-          accountType = "buyer";
-        } else {
-          return this.props.openSnackbar(
-            "Should select atleast one of buyer and seller!!"
-          );
-        }
-
         const signupResult = await axios.post("/auth/signup", {
           accountAddress: accountAddressField,
           email: emailField,
-          password: passwordField,
-          accountType
+          password: passwordField
         });
 
         const { user, message } = signupResult.data;
@@ -74,7 +59,6 @@ export default class AuthProvider extends Component {
         this.props.openSnackbar(message);
         this.setState({
           isLoggedIn: true,
-          accountType: user.accountType,
           currentUserId: user._id,
           accountBalance: user.accountBalance
         });
@@ -101,17 +85,15 @@ export default class AuthProvider extends Component {
       });
       const { user, message } = loginResult.data;
       this.props.openSnackbar(message);
-      if (user.accountType === "admin") {
+      if (user.isAdmin) {
         this.setState({
           isAdminLoggedIn: true,
           currentUserId: user._id,
-          accountType: user.accountType,
           accountBalance: user.accountBalance
         });
       } else {
         this.setState({
           isLoggedIn: true,
-          accountType: user.accountType,
           currentUserId: user._id,
           accountBalance: user.accountBalance
         });
@@ -163,7 +145,7 @@ export default class AuthProvider extends Component {
       isLoggedIn,
       currentUserId,
       isAdminLoggedIn,
-      accountType,
+
       accountBalance
     } = this.state;
     return (
@@ -171,7 +153,6 @@ export default class AuthProvider extends Component {
         value={{
           isLoggedIn,
           isAdminLoggedIn,
-          accountType,
           accountBalance,
           currentUserId,
           signupHandler: this.signupHandler,

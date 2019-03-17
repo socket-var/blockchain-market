@@ -201,10 +201,6 @@ module.exports = [
           "type": "address"
         },
         {
-          "name": "userType",
-          "type": "string"
-        },
-        {
           "name": "amount",
           "type": "uint256"
         }
@@ -214,7 +210,22 @@ module.exports = [
       "payable": false,
       "stateMutability": "nonpayable",
       "type": "function",
-      "signature": "0xfc0d1b84"
+      "signature": "0x6d705ebb"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "userAddress",
+          "type": "address"
+        }
+      ],
+      "name": "burnTokensOf",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function",
+      "signature": "0x979adf2c"
     },
     {
       "constant": false,
@@ -235,6 +246,29 @@ module.exports = [
       "constant": false,
       "inputs": [
         {
+          "name": "buyer",
+          "type": "address"
+        },
+        {
+          "name": "seller",
+          "type": "address"
+        },
+        {
+          "name": "priceInTokens",
+          "type": "uint256"
+        }
+      ],
+      "name": "settle",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function",
+      "signature": "0x92669141"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
           "name": "priceInTokens",
           "type": "uint256"
         },
@@ -244,12 +278,7 @@ module.exports = [
         }
       ],
       "name": "buy",
-      "outputs": [
-        {
-          "name": "",
-          "type": "bytes32"
-        }
-      ],
+      "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
       "type": "function",

@@ -2,9 +2,9 @@ const express = require("express");
 const regUserRouter = express.Router();
 const Product = require("../models/Product");
 const User = require("../models/auth");
-
-const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+
+const { signTx } = require("../helpers");
 
 module.exports = function(contract) {
   async function getCart(req, res, next) {
@@ -99,55 +99,44 @@ module.exports = function(contract) {
     }
   }
 
-  // this request should only come from admin or the same user
-  // TODO: change this later to not allow admin to addDeposit if not enough tokens
+  // TODO: remove hard-coded private key
   async function addDeposit(req, res, next) {
-    const { password, requestedBy } = req.body;
+    const { password } = req.body;
     const rechargeAmount = parseInt(req.body.rechargeAmount);
 
     try {
       const userObject = await User.findOne({ _id: req.params.userId });
 
-      let requestorObject;
-      if (requestedBy) {
-        requestorObject = await User.findOne({ _id: requestedBy });
-      }
-      let userBcAddress;
       if (userObject) {
-        userBcAddress = userObject.bcAddress;
-        if (requestorObject && requestorObject.accountType === "admin") {
-          fromAccount = requestorObject.bcAddress;
-        } else {
-          const result = await bcrypt.compare(password, userObject.password);
-          if (result) {
-            // all good, recharge wallet
-            fromAccount = userBcAddress;
-          } else {
-            return res
-              .status(401)
-              .json({ message: "Your credentials are incorrect. Try again." });
+        const userBcAddress = userObject.bcAddress;
+
+        const result = await bcrypt.compare(password, userObject.password);
+        if (result) {
+          // all good, recharge wallet
+          const addDepositResult = await signTx(
+            userBcAddress,
+            process.env.CONTRACT_ADDRESS,
+            "<user's private key>",
+            contract.methods
+              .addDeposit(userBcAddress, rechargeAmount)
+              .encodeABI()
+          );
+
+          if (addDepositResult) {
+            userObject.accountBalance += rechargeAmount;
+
+            const updatedUser = await userObject.save();
+
+            res.status(200).json({
+              accountBalance: updatedUser.accountBalance,
+              message: "Amount added to the wallet!!"
+            });
           }
+        } else {
+          return res
+            .status(401)
+            .json({ message: "Your credentials are incorrect. Try again." });
         }
-
-        const addDepositResult = await contract.methods
-          .addDeposit(userBcAddress, rechargeAmount)
-          .send({
-            from: fromAccount,
-            gas: 300000
-          });
-
-        if (addDepositResult) {
-          userObject.accountBalance += rechargeAmount;
-
-          await userObject.save();
-
-          res.status(200).json({
-            accountBalance: userObject.accountBalance,
-            message: "Amount added to the wallet!!"
-          });
-        }
-      } else {
-        res.status(401).json({ message: "Unauthorized request!!" });
       }
     } catch (err) {
       console.error(err);
@@ -155,8 +144,7 @@ module.exports = function(contract) {
     }
   }
 
-  // this is gonna be huge
-  // this later would handle transaction between buyer and seller, for now it just decrements counter
+  // TODO: remove hard-coded private key
   async function buyProduct(req, res, next) {
     const productId = req.body.productId;
     const buyerId = req.params.userId;
@@ -197,32 +185,28 @@ module.exports = function(contract) {
       let transactionId;
 
       try {
-        transactionId = await contract.methods
-          .buy(retailPrice, seller.bcAddress)
-          .send({
-            from: buyer.bcAddress,
-            gas: 200000
-          });
+        const result = await signTx(
+          buyer.bcAddress,
+          process.env.CONTRACT_ADDRESS,
+          "<user's private key>",
+          contract.methods.buy(retailPrice, seller.bcAddress).encodeABI()
+        );
       } catch (err) {
         console.error(err);
         return res.status(500).json({
-          message: "Insufficient account balance. Transaction failed!!"
+          message: "Transaction failed!!"
         });
       }
-      transactionId = transactionId.toString();
-      console.debug(transactionId);
 
       buyer.accountBalance = buyer.accountBalance - retailPrice;
       seller.accountBalance = seller.accountBalance + retailPrice;
 
       buyer.purchases.push({
-        transactionId,
         productId: productToBuy._id,
         boughtFrom: seller._id
       });
 
       seller.sales.push({
-        transactionId,
         productId: productToBuy._id,
         soldTo: seller._id
       });
@@ -243,6 +227,7 @@ module.exports = function(contract) {
       console.debug(err);
       res.status(500).json({ message: "Transaction failed. Contact admin" });
     }
+    console.debug("end of function");
   }
 
   // user cart Read

@@ -3,14 +3,14 @@ const authRouter = express.Router();
 const User = require("../models/auth");
 const bcrypt = require("bcryptjs");
 
+const { signTx } = require("../helpers");
+
 module.exports = function(contract) {
   // called when signup post request is made
   async function signupFunction(req, res, next) {
-    const { accountAddress, email, password, accountType } = req.body;
-    // called when a new user needs to be created
+    const { accountAddress, email, password } = req.body;
 
     // check if the user exists
-
     let matchedDoc;
     try {
       matchedDoc = await User.findOne({ email });
@@ -31,48 +31,43 @@ module.exports = function(contract) {
           .status(500)
           .send({ message: "Signup failed. Malformed password. Try again." });
       }
-
-      let bcUserRegistered;
-
+      let receipt;
       try {
         console.debug(`Calling register with ${process.env.ADMIN_ADDRESS}`);
         console.debug(
-          `passing parameters: ${accountAddress}, ${accountType}, 500`
+          `passing parameters: ${accountAddress}, ${process.env.SIGNUP_BONUS}`
         );
 
-        let estimate = await contract.methods
-          .register(accountAddress, accountType, 500)
-          .estimateGas();
+        const receipt = await signTx(
+          process.env.ADMIN_ADDRESS,
+          process.env.CONTRACT_ADDRESS,
+          process.env.PRIVATE_KEY,
+          contract.methods.register(accountAddress, 100).encodeABI()
+        );
 
-        bcUserRegistered = await contract.methods
-          .register(accountAddress, accountType, 500)
-          .send({
-            from: process.env.ADMIN_ADDRESS,
-            gas: estimate + 10000
+        if (receipt) {
+          let savedUser;
+
+          const newUser = new User({
+            bcAddress: accountAddress,
+            email,
+            password: hash,
+            isAdmin: false,
+            accountBalance: process.env.SIGNUP_BONUS
           });
-        console.debug(estimate, bcUserRegistered);
+          try {
+            savedUser = await newUser.save();
+          } catch (err) {
+            console.error(err);
+            return res
+              .status(401)
+              .json({ message: "Signup failed. Try again" });
+          }
+          res.status(200).json({ message: "Signup success!", user: savedUser });
+        }
       } catch (err) {
         console.error(err);
         return res.status(500).json({ message: "Blockchain error. Try again" });
-      }
-
-      if (bcUserRegistered) {
-        let savedUser;
-
-        const newUser = new User({
-          bcAddress: accountAddress,
-          email,
-          password: hash,
-          accountType,
-          accountBalance: 500
-        });
-        try {
-          savedUser = await newUser.save();
-        } catch (err) {
-          console.error(err);
-          return res.status(401).json({ message: "Signup failed. Try again" });
-        }
-        res.status(200).json({ message: "Signup success!", user: savedUser });
       }
     } else {
       res

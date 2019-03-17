@@ -16,7 +16,6 @@ const AppRoutes = ({
   userId,
   openSnackbar,
   isAdminLoggedIn,
-  accountType,
   accountBalance
 }) => {
   function renderAuthPage(AuthPage, authHandler) {
@@ -80,7 +79,6 @@ const AppRoutes = ({
               userId={userId}
               openSnackbar={openSnackbar}
               {...props}
-              accountType={accountType}
               accountBalance={accountBalance}
             />
           ) : (

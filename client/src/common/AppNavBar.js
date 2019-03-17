@@ -49,14 +49,7 @@ class AppNavBar extends React.Component {
   };
 
   render() {
-    const {
-      classes,
-      isLoggedIn,
-      isAdminLoggedIn,
-      signoutHandler,
-      openAddTokensModal,
-      accountType
-    } = this.props;
+    const { classes, isLoggedIn, isAdminLoggedIn, signoutHandler } = this.props;
     const { value, openRight } = this.state;
 
     return (
@@ -76,29 +69,6 @@ class AppNavBar extends React.Component {
             >
               Blockchain Market
             </Typography>
-
-            {isLoggedIn && (
-              <React.Fragment>
-                <Tabs
-                  value={value}
-                  onChange={this.handleChange}
-                  className={classes.growChild}
-                >
-                  {(accountType === "buyer" ||
-                    accountType === "buyer_and_seller") && (
-                    <Tab label="Buy" to="/user/buy" component={Link} />
-                  )}
-                  {(accountType === "seller" ||
-                    accountType === "buyer_and_seller") && (
-                    <Tab label="Sell" to="/user/sell" component={Link} />
-                  )}
-                  {(accountType === "buyer" ||
-                    accountType === "buyer_and_seller") && (
-                    <Tab label="Cart" to="/user/cart" component={Link} />
-                  )}
-                </Tabs>
-              </React.Fragment>
-            )}
 
             {!(isAdminLoggedIn || isLoggedIn) && (
               <div>
@@ -123,6 +93,15 @@ class AppNavBar extends React.Component {
 
             {isLoggedIn && (
               <React.Fragment>
+                <Tabs
+                  value={value}
+                  onChange={this.handleChange}
+                  className={classes.growChild}
+                >
+                  <Tab label="Buy" to="/user/buy" component={Link} />
+                  <Tab label="Sell" to="/user/sell" component={Link} />
+                  <Tab label="Cart" to="/user/cart" component={Link} />
+                </Tabs>
                 <Button
                   color="inherit"
                   className={classes.defaultChild}
@@ -158,8 +137,7 @@ class AppNavBar extends React.Component {
 AppNavBar.propTypes = {
   classes: PropTypes.object.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
-  signoutHandler: PropTypes.func.isRequired,
-  openAddTokensModal: PropTypes.func.isRequired
+  signoutHandler: PropTypes.func.isRequired
 };
 
 export default withStyles(styles)(AppNavBar);

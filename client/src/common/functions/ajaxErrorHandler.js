@@ -8,7 +8,7 @@ const ajaxErrorHandler = error => {
     message = "Request timed out, try again";
   } else {
     message = "Unknown error. Try again";
-    // console.error(error.message);
+    console.error(error);
   }
   return message;
 };

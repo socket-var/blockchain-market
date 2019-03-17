@@ -60,7 +60,12 @@ class UserList extends React.Component {
           >
             <DeleteIcon />
           </IconButton>
-          <Button color="primary" onClick={openDepositModal(item)}>
+          <Button
+            color="primary"
+            onClick={openDepositModal(item)}
+            id={item._id}
+            data-key={idx}
+          >
             Add deposit
           </Button>
         </ListItemSecondaryAction>

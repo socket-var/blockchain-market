@@ -21,7 +21,6 @@ const App = () => {
                 <AuthConsumer>
                   {({
                     isLoggedIn,
-                    accountType,
                     accountBalance,
                     currentUserId,
                     signupHandler,
@@ -38,7 +37,6 @@ const App = () => {
                           isAdminLoggedIn={isAdminLoggedIn}
                           signoutHandler={signoutHandler}
                           userId={currentUserId}
-                          accountType={accountType}
                         />
                         <AppRoutes
                           isLoggedIn={isLoggedIn}
@@ -50,7 +48,6 @@ const App = () => {
                           loginHandler={loginHandler}
                           userId={currentUserId}
                           openSnackbar={openSnackbar}
-                          accountType={accountType}
                         />
                       </div>
                     );

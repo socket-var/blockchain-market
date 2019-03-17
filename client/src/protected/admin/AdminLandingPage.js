@@ -1,3 +1,4 @@
+// TODO: re-rendering entire page when balance of user is updated
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
@@ -21,14 +22,16 @@ export default class AdminLandingPage extends Component {
     rechargeAmountField: null,
     totalTokens: null,
     tokensRemaining: null,
-    addTokensField: null
+    addTokensField: null,
+    selectedUserIdx: null
   };
 
-  openDepositModal = listItem => () => {
+  openDepositModal = listItem => evt => {
     this.setState({
       isAddDepositModalOpen: true,
       accountBalance: listItem.accountBalance,
-      selectedUser: listItem._id
+      selectedUser: listItem._id,
+      selectedUserIdx: evt.target.dataset.key
     });
   };
 
@@ -48,7 +51,7 @@ export default class AdminLandingPage extends Component {
     const { passwordField, rechargeAmountField } = this.state;
     try {
       const result = await axios.post(
-        `/api/user/${this.state.selectedUser}/add_deposit`,
+        `/api/admin/${this.state.selectedUser}/add_deposit`,
         {
           password: passwordField,
           rechargeAmount: rechargeAmountField,
@@ -56,9 +59,20 @@ export default class AdminLandingPage extends Component {
         }
       );
 
-      this.setState({
-        accountBalance: result.data.accountBalance
+      this.setState(prevState => {
+        const users = Object.assign([], prevState.users);
+        users[this.state.selectedUserIdx].accountBalance += parseInt(
+          rechargeAmountField
+        );
+        const tokensRemaining =
+          this.state.tokensRemaining - rechargeAmountField;
+        return {
+          users,
+          accountBalance: result.data.accountBalance,
+          tokensRemaining
+        };
       });
+
       this.props.openSnackbar(result.data.message);
     } catch (err) {
       this.catchFunction(err);
