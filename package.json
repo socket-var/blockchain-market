@@ -6,9 +6,9 @@
     "client": "cd client && npm start",
     "server": "node ./bin/www",
     "dev-server": "nodemon ./bin/www",
-    "dev-start": "set NODE_ENV=development & set DEBUG=blockchain-market:* & concurrently --kill-others \"npm run dev-server\" \"npm run client\"",
-    "start": "set NODE_ENV=production & npm run server",
-    "dev-test-run": "set NODE_ENV=development & npm run server",
+    "dev-start": "set NODE_ENV=development&set DEBUG=blockchain-market:*&concurrently --kill-others \"npm run dev-server\" \"npm run client\"",
+    "start": "set NODE_ENV=production&npm run server",
+    "dev-test-run": "set NODE_ENV=development&npm run server",
     "heroku-postbuild": "cd client && npm install && npm run build"
   },
   "dependencies": {
@@ -18,6 +18,7 @@
     "debug": "~2.6.9",
     "dotenv": "^6.2.0",
     "ejs": "~2.5.7",
+    "ethereumjs-tx": "^1.3.7",
     "express": "~4.16.0",
     "http-errors": "~1.6.2",
     "mongoose": "^5.4.11",
