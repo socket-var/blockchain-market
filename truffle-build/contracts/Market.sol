@@ -103,7 +103,7 @@ contract Market {
         users[newUser].isAdmin = false;
         users[newUser].isRegistered = true;
         
-        
+        // add tokens to user's account during signup
         addDeposit(newUser, amount);
         
         emit DepositSuccess(newUser, amount);

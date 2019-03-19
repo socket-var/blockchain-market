@@ -5,6 +5,7 @@ const User = require("../models/auth");
 const bcrypt = require("bcryptjs");
 
 const { signTx } = require("../helpers");
+const CryptoJS = require("crypto-js");
 
 module.exports = function(contract) {
   async function getCart(req, res, next) {
@@ -99,7 +100,6 @@ module.exports = function(contract) {
     }
   }
 
-  // TODO: remove hard-coded private key
   async function addDeposit(req, res, next) {
     const { password } = req.body;
     const rechargeAmount = parseInt(req.body.rechargeAmount);
@@ -113,10 +113,16 @@ module.exports = function(contract) {
         const result = await bcrypt.compare(password, userObject.password);
         if (result) {
           // all good, recharge wallet
+          const userPrivateKey = CryptoJS.AES.decrypt(
+            userObject.encryptedPk,
+            password
+          ).toString(CryptoJS.enc.Utf8);
+          console.debug(userPrivateKey);
+
           const addDepositResult = await signTx(
             userBcAddress,
             process.env.CONTRACT_ADDRESS,
-            "<user's private key>",
+            userPrivateKey,
             contract.methods
               .addDeposit(userBcAddress, rechargeAmount)
               .encodeABI()
@@ -144,9 +150,8 @@ module.exports = function(contract) {
     }
   }
 
-  // TODO: remove hard-coded private key
   async function buyProduct(req, res, next) {
-    const productId = req.body.productId;
+    const { productId, password } = req.body;
     const buyerId = req.params.userId;
 
     // check if in stock
@@ -163,10 +168,16 @@ module.exports = function(contract) {
       }
 
       const buyer = await User.findOne({ _id: buyerId });
-
+      console.log(buyer.encryptedPk);
       if (!buyer) {
         return res.status(404).json({ message: "Buyer's user Id not found" });
       }
+
+      const buyerPrivateKey = CryptoJS.AES.decrypt(
+        buyer.encryptedPk,
+        password
+      ).toString(CryptoJS.enc.Utf8);
+      console.debug(buyerPrivateKey);
 
       const seller = await User.findOne({ _id: productToBuy.createdBy });
 
@@ -188,7 +199,7 @@ module.exports = function(contract) {
         const result = await signTx(
           buyer.bcAddress,
           process.env.CONTRACT_ADDRESS,
-          "<user's private key>",
+          buyerPrivateKey,
           contract.methods.buy(retailPrice, seller.bcAddress).encodeABI()
         );
       } catch (err) {

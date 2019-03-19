@@ -4,7 +4,6 @@ import { Route, Switch } from "react-router-dom";
 import axios from "axios";
 import ajaxErrorHandler from "../../common/functions/ajaxErrorHandler";
 // user routes
-
 import SellPage from "./SellPage";
 import CartPage from "./CartPage";
 import BuyPage from "./BuyPage";
@@ -24,7 +23,10 @@ export default class UserLandingPage extends Component {
     numUnitsField: "",
     rechargeAmountField: "",
     accountBalance: null,
-    passwordField: ""
+    passwordField: "",
+    confirmBuyPasswordField: "",
+    isBuyConfirmOpen: false,
+    selectedProduct: {}
   };
 
   catchFunction = err => {
@@ -114,12 +116,14 @@ export default class UserLandingPage extends Component {
   };
 
   buyProduct = async evt => {
-    const productId = evt.target.id;
-    const idx = evt.target.dataset.key;
+    evt.preventDefault();
+    const { data, idx } = this.state.selectedProduct;
+    const productId = data._id;
 
     try {
       const result = await axios.post(`/api/user/${this.props.userId}/buy`, {
-        productId
+        productId,
+        password: this.state.confirmBuyPasswordField
       });
       this.props.openSnackbar(result.data.message);
       this.setState(function(prevState) {
@@ -191,9 +195,28 @@ export default class UserLandingPage extends Component {
     });
   }
 
+  openBuyConfirm = evt => {
+    const idx = evt.target.dataset.key;
+
+    this.setState({
+      isBuyConfirmOpen: true,
+      selectedProduct: {
+        data: Object.assign({}, this.state.products[idx]),
+        idx
+      }
+    });
+  };
+
+  closeBuyConfirm = () => {
+    this.setState({
+      isBuyConfirmOpen: false,
+      selectedProduct: {}
+    });
+  };
+
   render() {
     const { match, userId } = this.props;
-    const { accountBalance } = this.state;
+    const { accountBalance, isBuyConfirmOpen, selectedProduct } = this.state;
 
     const { products } = this.state;
 
@@ -209,6 +232,11 @@ export default class UserLandingPage extends Component {
               getData={this.getData}
               addToCart={this.addToCart}
               buyProduct={this.buyProduct}
+              isBuyConfirmOpen={isBuyConfirmOpen}
+              openBuyConfirm={this.openBuyConfirm}
+              closeBuyConfirm={this.closeBuyConfirm}
+              selectedProduct={selectedProduct.data || {}}
+              onInputChange={this.onInputChange}
             />
           )}
         />
@@ -275,6 +303,11 @@ export default class UserLandingPage extends Component {
               addToCart={this.addToCart}
               buyProduct={this.buyProduct}
               userId={userId}
+              isBuyConfirmOpen={isBuyConfirmOpen}
+              openBuyConfirm={this.openBuyConfirm}
+              closeBuyConfirm={this.closeBuyConfirm}
+              selectedProduct={selectedProduct.data || {}}
+              onInputChange={this.onInputChange}
             />
           )}
         />

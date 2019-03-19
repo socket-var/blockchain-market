@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
 import ajaxErrorHandler from "./functions/ajaxErrorHandler";
+
 // create context for user authentication
 const AuthContext = React.createContext();
 
@@ -18,6 +19,7 @@ export default class AuthProvider extends Component {
     passwordField: "",
     confirmPasswordField: "",
     accountAddressField: "",
+    privateKeyField: "",
     message: "",
     sellerCheckbox: false,
     buyerCheckbox: false,
@@ -42,16 +44,16 @@ export default class AuthProvider extends Component {
       emailField,
       passwordField,
       confirmPasswordField,
-      sellerCheckbox,
-      buyerCheckbox
+      privateKeyField
     } = this.state;
 
     if (passwordField === confirmPasswordField) {
       try {
-        const signupResult = await axios.post("/auth/signup", {
+        const signupResult = axios.post("/auth/signup", {
           accountAddress: accountAddressField,
           email: emailField,
-          password: passwordField
+          password: passwordField,
+          privateKey: privateKeyField
         });
 
         const { user, message } = signupResult.data;
@@ -119,12 +121,6 @@ export default class AuthProvider extends Component {
     });
   };
 
-  onCheckStateChange = evt => {
-    this.setState({
-      [evt.target.id]: evt.target.checked
-    });
-  };
-
   componentDidUpdate = (prevProps, prevState) => {
     // to make sure this block runs only when there is a change in state
     if (
@@ -158,8 +154,7 @@ export default class AuthProvider extends Component {
           signupHandler: this.signupHandler,
           loginHandler: this.loginHandler,
           signoutHandler: this.signoutHandler,
-          onInputChange: this.onInputChange,
-          onCheckStateChange: this.onCheckStateChange
+          onInputChange: this.onInputChange
         }}
       >
         {this.props.children}

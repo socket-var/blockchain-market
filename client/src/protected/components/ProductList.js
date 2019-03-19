@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import withStyles from "@material-ui/core/styles/withStyles";
 
 import ProductCard from "./ProductCard";
+import BuyProductForm from "../components/BuyProductForm";
 
 const styles = {
   root: {
@@ -11,7 +12,7 @@ const styles = {
     justifyContent: "flex-start"
   }
 };
-
+// TODO: add a modal when buy is clicked to confirm password
 const ProductList = props => {
   const {
     products,
@@ -20,7 +21,12 @@ const ProductList = props => {
     addToCart,
     buyProduct,
     removeFromCart,
-    removeProductFromSale
+    removeProductFromSale,
+    isBuyConfirmOpen,
+    openBuyConfirm,
+    closeBuyConfirm,
+    selectedProduct,
+    onInputChange
   } = props;
   const cards = [];
   if (products.length > 0) {
@@ -42,7 +48,7 @@ const ProductList = props => {
           retailPrice={retailPrice}
           numUnits={numUnits}
           addToCart={addToCart || null}
-          buyProduct={buyProduct || null}
+          openBuyConfirm={openBuyConfirm || null}
           removeFromCart={removeFromCart || null}
           removeProductFromSale={removeProductFromSale}
         />
@@ -55,7 +61,17 @@ const ProductList = props => {
       {errorMessage ? (
         <div>{errorMessage}</div>
       ) : (
-        <div className={classes.root}>{cards}</div>
+        <React.Fragment>
+          <BuyProductForm
+            isBuyConfirmOpen={isBuyConfirmOpen}
+            buyProduct={buyProduct}
+            closeBuyConfirm={closeBuyConfirm}
+            selectedProduct={selectedProduct}
+            onSubmit={buyProduct}
+            onInputChange={onInputChange}
+          />
+          <div className={classes.root}>{cards}</div>
+        </React.Fragment>
       )}
     </div>
   );

@@ -15,6 +15,7 @@
     "bcryptjs": "^2.4.3",
     "concurrently": "^4.1.0",
     "cookie-parser": "~1.4.3",
+    "crypto-js": "^3.1.9-1",
     "debug": "~2.6.9",
     "dotenv": "^6.2.0",
     "ejs": "~2.5.7",

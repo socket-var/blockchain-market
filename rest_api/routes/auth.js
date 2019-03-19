@@ -4,11 +4,12 @@ const User = require("../models/auth");
 const bcrypt = require("bcryptjs");
 
 const { signTx } = require("../helpers");
+const CryptoJS = require("crypto-js");
 
 module.exports = function(contract) {
   // called when signup post request is made
   async function signupFunction(req, res, next) {
-    const { accountAddress, email, password } = req.body;
+    const { accountAddress, email, password, privateKey } = req.body;
 
     // check if the user exists
     let matchedDoc;
@@ -31,12 +32,17 @@ module.exports = function(contract) {
           .status(500)
           .send({ message: "Signup failed. Malformed password. Try again." });
       }
-      let receipt;
+
       try {
         console.debug(`Calling register with ${process.env.ADMIN_ADDRESS}`);
         console.debug(
           `passing parameters: ${accountAddress}, ${process.env.SIGNUP_BONUS}`
         );
+
+        const encryptedPk = CryptoJS.AES.encrypt(
+          privateKey,
+          password
+        ).toString();
 
         const receipt = await signTx(
           process.env.ADMIN_ADDRESS,
@@ -53,7 +59,8 @@ module.exports = function(contract) {
             email,
             password: hash,
             isAdmin: false,
-            accountBalance: process.env.SIGNUP_BONUS
+            accountBalance: process.env.SIGNUP_BONUS,
+            encryptedPk
           });
           try {
             savedUser = await newUser.save();
@@ -76,7 +83,7 @@ module.exports = function(contract) {
     }
   }
 
-  // called when login post request is made
+  // called when login post request
   async function loginFunction(req, res, next) {
     const email = req.body.email;
     const password = req.body.password;

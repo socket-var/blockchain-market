@@ -7,31 +7,42 @@
 
 ## Foreword:
 
-- This submission also includes the lab2 (previously lab1 part3) implementation i.e. integrating web app and blockchain using web3.js and truffle-ganache suite.
-- More enhancements will be made as requirements change and the app will be deployed to rinkeby test network for the next submission.
+- This submission also includes part3 implementation i.e. integrating web app and blockchain using web3.js. This should work with "ganache" as well as the "rinkeby" network.
+- The live version of this app is at [http://blockchain-market.herokuapp.com/](http://blockchain-market.herokuapp.com/)
+
+- The smart contract is present in the location "C:\Users\socket_var\Desktop\BlockchainProj1\truffle-build\contracts" named "Market.sol"
+- The blockchain for the live website is hosted on a full node provided by infura on the Rinkeby network.
+- Since transactions on the real networks needed to be signed by a private key we ask the user to input their account's private key and securely save the private key using encryption techniques.
 
 The smart contract has functions grouped by the access modifiers as follows:
 
 ### Chairperson:
 
+- register() - Register a new user
+- unregister() - Unregister a user
+
+There are also additional functions like:
+
 - addTokens() - Add more tokens to be distributed across the system.
 - totalSupply() - Get total tokens in the system.
 - getTokenBalance() - Get tokens remaining to be distributed across the users.
-- register() - Register a new user
-- unregister() - Unregister a user
-- burnTokensOf() - Called by unregister() to return tokens to user when unregistered.
 
-### Buyer:
+These functions might seem extraneous, but are needed to display the stats in the web application when the admin logs in.
+
+### Buyer and Seller:
 
 - buy() - Called by a buyer to buy a product from the seller in tokens.
-- settle() - Caled by buy() to deduct money from buyer's account and add money to seller's account.
 
-### Shared:
+**Note:** All registered users can buy and sell.
+
+### Shared between chairperson and user:
 
 - balanceOf() - Called by the chairperson or the owner's account to get the balance in the owner's wallet.
 - addDeposit() - Called by the chairperson or the owner's account to add money to the owner's wallet.
 
 ## Steps to run the project:
+
+- The simplest way to run the project is to go to [http://blockchain-market.herokuapp.com/](http://blockchain-market.herokuapp.com/) and register. To run locally follow the below steps.
 
 - Download the latest binaries for Node.js and MongoDB.
 - Create a database called `bc_market_db`.
@@ -63,7 +74,7 @@ db.createUser({
   contract.addTokens(1000);
   ```
 
-  **Note:** This is a one time operation, later when an admin is added in the database, more tokens can be added using UI.
+  **Note:** This is an optional one time operation, later when an admin is added in the database, more tokens can be added using UI.
 
 - Go to the terminal and type `npm install`
 
@@ -71,13 +82,13 @@ db.createUser({
 
 - Once all the dependencies are installed type `npm run dev-test-run`
 - Open the browser and type [http://localhost:3003](http://localhost:3003)
-- Create an admin user entry in MongoDB. This is the account that acts as a chairperson for the website. **This is a one-time operation.**
+- Create an admin user entry in MongoDB. This is the account that acts as a chairperson for the website. **This is a one-time operation.** Password for the admin is "aaaaaa" for now.
   ```javascript
   users.insertOne({
     bcAddress: "0x629a11628711b02e350837Ca7F642140300fb1B3", // the same as the address with which contract is deployed
     email: "sakethvarma@admin.com",
     password: "$2a$14$XO4qELtl3cJ/WBz.gU7GZeJF/9t/Mj27RRTfguBql7Qb10mbohCtq",
-    accountType: "admin"
+    isAdmin: "true"
   });
   ```
 

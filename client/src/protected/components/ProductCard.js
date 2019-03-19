@@ -38,7 +38,7 @@ class ProductCard extends React.Component {
       numUnits,
       imageUrl,
       addToCart,
-      buyProduct,
+      openBuyConfirm,
       productIdx,
       removeFromCart,
       removeProductFromSale
@@ -61,7 +61,7 @@ class ProductCard extends React.Component {
       );
     }
 
-    if (buyProduct) {
+    if (openBuyConfirm) {
       BuyButton = (
         <Button
           fullWidth
@@ -69,7 +69,7 @@ class ProductCard extends React.Component {
           color="primary"
           className={classes.submit}
           id={buttonId}
-          onClick={buyProduct}
+          onClick={openBuyConfirm}
           data-key={productIdx}
         >
           Buy
@@ -142,7 +142,7 @@ ProductCard.propTypes = {
   imageUrl: PropTypes.string,
   productIdx: PropTypes.number.isRequired,
   addToCart: PropTypes.func,
-  buyProduct: PropTypes.func,
+  openBuyConfirm: PropTypes.func,
   removeFromCart: PropTypes.func,
   removeProductFromSale: PropTypes.func
 };
