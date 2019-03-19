@@ -66,7 +66,7 @@ const ProductList = props => {
             isBuyConfirmOpen={isBuyConfirmOpen}
             buyProduct={buyProduct}
             closeBuyConfirm={closeBuyConfirm}
-            selectedProduct={selectedProduct}
+            selectedProduct={selectedProduct || ""}
             onSubmit={buyProduct}
             onInputChange={onInputChange}
           />
