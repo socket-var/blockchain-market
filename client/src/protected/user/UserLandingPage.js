@@ -100,8 +100,8 @@ export default class UserLandingPage extends Component {
   };
 
   addToCart = async evt => {
-    const productId = evt.target.id;
-
+    const productId = evt.currentTarget.id;
+    console.log(evt, evt.currentTarget.id);
     try {
       const result = await axios.post(
         `/api/user/${this.props.userId}/cart/add`,
@@ -196,7 +196,7 @@ export default class UserLandingPage extends Component {
   }
 
   openBuyConfirm = evt => {
-    const idx = evt.target.dataset.key;
+    const idx = evt.currentTarget.dataset.key;
 
     this.setState({
       isBuyConfirmOpen: true,

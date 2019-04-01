@@ -12,7 +12,7 @@ const styles = {
     justifyContent: "flex-start"
   }
 };
-// TODO: add a modal when buy is clicked to confirm password
+
 const ProductList = props => {
   const {
     products,
@@ -33,7 +33,6 @@ const ProductList = props => {
     products.forEach((item, idx) => {
       const imageUrl =
         item.image.length > 0 ? item.image[0] : "/placeholder.png";
-      console.log(item.productName);
       const productId = item._id;
       const productName = item.productName;
       const retailPrice = item.retailPrice;
