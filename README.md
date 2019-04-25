@@ -1,16 +1,8 @@
-# Lab 1: Decentralized Market Place using Blockchain
-
-## Team:
-
-- Saketh Varma Pericherla (sakethva@buffalo.edu)
-- Prashanth Desu (pdesu@buffalo.edu)
+Decentralized Market Place using Blockchain
 
 ## Foreword:
 
-- This submission also includes part3 implementation i.e. integrating web app and blockchain using web3.js. This should work with "ganache" as well as the "rinkeby" network.
 - The live version of this app is at [http://blockchain-market.herokuapp.com/](http://blockchain-market.herokuapp.com/)
-
-- The smart contract is present in the location "C:\Users\socket_var\Desktop\BlockchainProj1\truffle-build\contracts" named "Market.sol"
 - The blockchain for the live website is hosted on a full node provided by infura on the Rinkeby network.
 - Since transactions on the real networks needed to be signed by a private key we ask the user to input their account's private key and securely save the private key using encryption techniques.
 
